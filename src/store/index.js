@@ -14,7 +14,7 @@ const store = new Vuex.Store({
 			children:[{
 				icon:require('@/static/product_info.png'),
 				icon_active:require('@/static/product_info_active.png'),
-				name:'商品资料',
+				name:'商品资料111',
 				path:'/product_info',
 				hover:false,
 				active:false
