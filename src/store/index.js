@@ -14,7 +14,7 @@ const store = new Vuex.Store({
 			children:[{
 				icon:require('@/static/product_info.png'),
 				icon_active:require('@/static/product_info_active.png'),
-				name:'商品资料111',
+				name:'商品资料',
 				path:'/product_info',
 				hover:false,
 				active:false
@@ -30,6 +30,34 @@ const store = new Vuex.Store({
 				icon_active:require('@/static/quality_inspection_active.png'),
 				name:'质检报告',
 				path:'/quality_inspection',
+				hover:false,
+				active:false
+			}]
+		},{
+			name:'商品资料审核',
+			icon:require('@/static/product_info_audit.png'),
+			icon_big:require('@/static/product_info_audit_big.png'),
+			icon_big_active:require('@/static/product_info_audit_big_active.png'),
+			active:false,
+			children:[{
+				icon:require('@/static/product_info_audit.png'),
+				icon_active:require('@/static/product_info_audit_active.png'),
+				name:'商品资料审核',
+				path:'/product_info_audit',
+				hover:false,
+				active:false
+			},{
+				icon:require('@/static/report_audit.png'),
+				icon_active:require('@/static/report_audit_active.png'),
+				name:'质检报告审核',
+				path:'/report_audit',
+				hover:false,
+				active:false
+			},{
+				icon:require('@/static/sample_audit.png'),
+				icon_active:require('@/static/sample_audit_active.png'),
+				name:'样衣审核',
+				path:'/sample_audit',
 				hover:false,
 				active:false
 			}]

@@ -11,8 +11,22 @@
 			</div>
 			<!-- 收起显示一级菜单图标 -->
 			<div v-if="!menu_status">
-				<div class="menu_item flex ac jc pointer" v-for="(menu,index) in menuList">
-					<img class="menu_icon_big" :src="menu.icon_big">
+				<div class="menu_item flex ac jc pointer relative" v-for="(menu,index) in menuList">
+					<a-popover overlayClassName="a_popover" placement="right" trigger="click">
+						<template slot="content">
+							<div class="menu_item pl16 pr16 flex ac jsb pointer" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="checkMenu(child.path)" v-for="(child,child_index) in menu.children">
+								<div class="menu_item_content w_100 h_100 flex ac jsb pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}">
+									<div class="flex ac">
+										<img class="menu_icon" :src="child.icon_active" v-if="child.active">
+										<img class="menu_icon" :src="child.icon" v-else>
+										<div class="f16 fw400" :class="{'active_color':child.active}">{{child.name}}</div>
+									</div>
+									<div class="dot"></div>
+								</div>
+							</div>
+						</template>
+						<img class="menu_icon_big" :src="menu.icon_big">
+					</a-popover>
 				</div>
 			</div>
 			<!-- 展开状态显示菜单列表 -->
@@ -47,7 +61,7 @@
 	export default{
 		data(){
 			return{
-				menu_status:false,
+				menu_status:true,
 			}
 		},
 		computed:{
@@ -77,6 +91,47 @@
 		}
 	}
 </script>
+<style type="text/css">
+	.a_popover .menu_item{
+		border:1px solid red;
+		height: 56px;
+		color:#718096;
+
+	}
+	.a_popover .menu_item_content{
+		border-radius: 14px;
+	}
+	.a_popover .menu_item_content_active{
+		background-color: rgba(63,140,255, 0.1);
+	}
+	.a_popover .active_color{
+		color: #3F8CFF;
+	}
+	.a_popover .menu_icon{
+		margin-right: 8px;
+		width: 16px;
+		height: 16px;
+	}
+	.a_popover .menu_icon_big{
+		width: 24px;
+		height: 24px;
+	}
+	.a_popover .arrow_icon{
+		transform-origin: 50% 50%;
+		transition: all 0.3s;
+		width: 14px;
+		height: 14px;
+	}
+	.a_popover .arrow_icon_up{
+		transform: rotate(-180deg);
+	}
+	.a_popover .dot{
+		border-radius: 50%;
+		width: 8px;
+		height: 8px;
+		background: #DB0000;
+	}
+</style>
 <style lang="less" scoped>
 	.nav_menu{
 		padding: 24px 24px 16px;
@@ -95,6 +150,7 @@
 				height: 10px;
 			}
 			.menu_item{
+				border:1px solid red;
 				height: 56px;
 				color:#718096;
 				.menu_item_content{
