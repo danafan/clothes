@@ -1,6 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
+import router from '@/router'
+
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -43,7 +45,7 @@ const store = new Vuex.Store({
 				icon:require('@/static/product_info_audit.png'),
 				icon_active:require('@/static/product_info_audit_active.png'),
 				name:'商品资料审核',
-				path:'/product_info_audit',
+				path:'/product_audit',
 				hover:false,
 				active:false
 			},{
@@ -61,11 +63,18 @@ const store = new Vuex.Store({
 				hover:false,
 				active:false
 			}]
-		}],										//导航列表
-		active_path:'/home',							//当前选中的菜单
+		}],												//导航列表
+		active_path:'/',							//当前选中的菜单
+		tabsList:[{
+			default:true,
+			name:'首页',
+			path:'/',
+			hover:false,
+			active:true
+		}],												//当前已打开的菜单列表
 	},
 	mutations: {
-		//切换主菜单展开/收起状态
+		//切换一级菜单展开/收起状态
 		checkMenuStatus(state, index){
 			state.menuList.map((menu,menu_index) => {
 				if(menu_index == index){
@@ -75,18 +84,79 @@ const store = new Vuex.Store({
 				}
 			})
 		},
-    	//鼠标移入/移出导航
+    	//鼠标移入/移出二级菜单
 		mouseMenu(state, arg){
 			state.menuList[arg.index].children[arg.child_index].hover = arg.bool;
 		},
 		//切换导航
-		checkMenu(state, path){
-			state.active_path = path;
+		checkMenu(state, menu_item){
+			state.active_path = menu_item.path;
 			state.menuList.map(menu => {
 				menu.children.map(child => {
-					child.active = child.path == path;
+					child.active = child.path == menu_item.path;
 				})
 			})
+			// 处理标签页
+			let index = state.tabsList.findIndex(item => {
+				return item.path == menu_item.path;
+			})
+			if(index == -1){				//打开新标签
+				let tab_item = {
+					name:menu_item.name,
+					path:menu_item.path,
+					hover:false,
+					active:true
+				}
+				state.tabsList.map(item => {
+					item.active = false;
+				})
+				state.tabsList.push(tab_item);
+			}else{							//切换标签
+				state.tabsList.map(item => {
+					item.active = menu_item.path == item.path;
+				})
+			}
+			router.push(state.active_path);
+		},
+		//鼠标移入/移出标签页
+		mouseTab(state, arg){
+			state.tabsList[arg.index].hover = arg.bool;
+		},
+		//切换标签页
+		checkTab(state, tab){
+			state.active_path = tab.path;
+			state.menuList.map(menu => {
+				menu.children.map(child => {
+					child.active = child.path == tab.path;
+				})
+			})
+			// 处理标签页
+			let index = state.tabsList.findIndex(item => {
+				return item.path == tab.path;
+			})
+			state.tabsList.map(item => {
+				item.active = tab.path == item.path;
+			})
+			router.push(state.active_path)
+		},
+		//删除标签页
+		deleteTab(state,tab){
+			let index = state.tabsList.findIndex(item => {
+				return item.path == tab.path;
+			})
+			if(tab.active){		//删除的是当前展示的菜单
+				state.active_path = state.tabsList[index - 1].path;
+				state.menuList.map(menu => {
+					menu.children.map(child => {
+						child.active = child.path == state.active_path;
+					})
+				})
+				state.tabsList[index - 1].active = true;
+				state.tabsList.splice(index,1);
+			}else{
+				state.tabsList.splice(index,1);
+			}
+			router.push(state.active_path)
 		}
 	},
 	actions: {

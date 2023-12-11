@@ -6,7 +6,7 @@
 <script>
   export default {
     created(){
-      this.$router.replace('/nav_menu')
+      // this.$router.replace('/home')
     }
 
   }
