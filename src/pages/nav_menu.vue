@@ -36,17 +36,17 @@
 					<div class="menu_item pl24 pr24 flex ac jsb pointer" @click="$store.commit('checkMenuStatus',index)">
 						<div class="flex ac">
 							<img class="menu_icon" :src="menu.icon">
-							<div class="f16 fw400">{{menu.name}}</div>
+							<div class="f16 fw400 space-nowrap">{{menu.name}}</div>
 						</div>
 						<img class="arrow_icon" :class="{'arrow_icon_up':menu.active}" src="@/static/arrow_up_icon.png">
 					</div>
 					<div class="supplier_menu_children" v-if="menu.active">
-						<div class="menu_item pl16 pr16 flex ac jsb pointer" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="$store.commit('checkMenu',child)" v-for="(child,child_index) in menu.children">
+						<div class="menu_item pl16 pr16 flex ac jsb pointer" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="checkMenu(child,index)" v-for="(child,child_index) in menu.children">
 							<div class="menu_item_content w_100 h_100 flex ac jsb pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}">
 								<div class="flex ac">
 									<img class="menu_icon" :src="child.icon_active" v-if="child.active">
 									<img class="menu_icon" :src="child.icon" v-else>
-									<div class="f16 fw400" :class="{'active_color':child.active}">{{child.name}}</div>
+									<div class="f16 fw400 space-nowrap" :class="{'active_color':child.active}">{{child.name}}</div>
 								</div>
 								<div class="dot"></div>
 							</div>
@@ -60,9 +60,9 @@
 			<div class="flex jse mb24">
 				<div class="admin_setting flex ac jc f14 fw400">用户名称 ｜ 退出</div>
 			</div>
-			<div class="tab_pane flex mb16">
-				<div class="tab_item flex ac f14 mr32 pointer" :class="{'active_tab_item_bg':item.hover || item.active}" @mouseenter="mouseTab(index,true)" @mouseleave="mouseTab(index,false)" @click="$store.commit('checkTab',item)" v-for="(item,index) in tabsList">
-					<div>{{item.name}}</div>
+			<div class="tab_pane flex flex-warp mb16">
+				<div class="tab_item flex ac f14 mr32 mb16 pointer" :class="{'active_tab_item_bg':item.hover || item.active}" @mouseenter="mouseTab(index,true)" @mouseleave="mouseTab(index,false)" @click="$store.commit('checkTab',item)" v-for="(item,index) in tabsList">
+					<div class="space-nowrap">{{item.name}}</div>
 					<img class="tab_close" src="@/static/tab_close_active.png" @click.stop="$store.commit('deleteTab',item)" v-if="(item.hover || item.active) && !item.default">
 					<img class="tab_close" src="@/static/tab_close.png" @click.stop="$store.commit('deleteTab',item)" v-if="!item.hover && !item.active && !item.default">
 				</div>
@@ -78,8 +78,11 @@
 	export default{
 		data(){
 			return{
-				menu_status:false,
+				menu_status:true,
 			}
+		},
+		created(){
+			this.$store.commit('initMenuStatus',this.$route.path)
 		},
 		computed:{
 			//菜单列表
@@ -100,6 +103,11 @@
 					bool:bool
 				}
 				this.$store.commit('mouseMenu',arg);
+			},
+			//切换导航
+			checkMenu(child,index){
+				child['parent_index'] = index;
+				this.$store.commit('checkMenu',child)
 			},
 			//鼠标移入/移出标签页
 			mouseTab(index,bool){
@@ -229,7 +237,7 @@
 			color: #718096;
 		}	
 		.tab_pane{
-			padding: 16px 24px;
+			padding: 16px 24px 0;
 			background: #FFFFFF;
 			border-radius: 24px;
 			.tab_item{

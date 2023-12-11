@@ -3,7 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
   devServer: {
-    port: '8888',
+    port: '7777',
     // proxy: {
     //   '/': {
     //     target: 'http://selectiontest.92nu.com',

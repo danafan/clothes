@@ -12,7 +12,7 @@ const store = new Vuex.Store({
 			icon:require('@/static/info_upload_menu.png'),
 			icon_big:require('@/static/info_upload_menu_big.png'),
 			icon_big_active:require('@/static/info_upload_menu_big_active.png'),
-			active:true,
+			active:false,
 			children:[{
 				icon:require('@/static/product_info.png'),
 				icon_active:require('@/static/product_info_active.png'),
@@ -64,9 +64,9 @@ const store = new Vuex.Store({
 				active:false
 			}]
 		}],												//导航列表
-		active_path:'/',							//当前选中的菜单
-		tabsList:[{
-			default:true,
+		active_path:'/',								//当前选中的菜单
+		tabsList:sessionStorage.getItem("tabsList")?JSON.parse(sessionStorage.getItem("tabsList")):[{
+		default:true,
 			name:'首页',
 			path:'/',
 			hover:false,
@@ -102,6 +102,7 @@ const store = new Vuex.Store({
 			})
 			if(index == -1){				//打开新标签
 				let tab_item = {
+					parent_index:menu_item.parent_index,
 					name:menu_item.name,
 					path:menu_item.path,
 					hover:false,
@@ -116,16 +117,21 @@ const store = new Vuex.Store({
 					item.active = menu_item.path == item.path;
 				})
 			}
+			sessionStorage.setItem("tabsList", JSON.stringify(state.tabsList));
 			router.push(state.active_path);
 		},
 		//鼠标移入/移出标签页
 		mouseTab(state, arg){
 			state.tabsList[arg.index].hover = arg.bool;
+			sessionStorage.setItem("tabsList", JSON.stringify(state.tabsList));
 		},
 		//切换标签页
 		checkTab(state, tab){
 			state.active_path = tab.path;
-			state.menuList.map(menu => {
+			state.menuList.map((menu,index) => {
+				if(state.tabsList.length > 2){
+					menu.active = tab.parent_index == index;
+				}
 				menu.children.map(child => {
 					child.active = child.path == tab.path;
 				})
@@ -137,7 +143,8 @@ const store = new Vuex.Store({
 			state.tabsList.map(item => {
 				item.active = tab.path == item.path;
 			})
-			router.push(state.active_path)
+			sessionStorage.setItem("tabsList", JSON.stringify(state.tabsList));
+			router.push(state.active_path);
 		},
 		//删除标签页
 		deleteTab(state,tab){
@@ -146,7 +153,11 @@ const store = new Vuex.Store({
 			})
 			if(tab.active){		//删除的是当前展示的菜单
 				state.active_path = state.tabsList[index - 1].path;
-				state.menuList.map(menu => {
+				let current_menu_index = state.tabsList[index - 1].parent_index;
+				state.menuList.map((menu,menu_index) => {
+					if(state.tabsList.length > 2){
+						menu.active = current_menu_index == menu_index;
+					}
 					menu.children.map(child => {
 						child.active = child.path == state.active_path;
 					})
@@ -156,8 +167,23 @@ const store = new Vuex.Store({
 			}else{
 				state.tabsList.splice(index,1);
 			}
-			router.push(state.active_path)
+			sessionStorage.setItem("tabsList", JSON.stringify(state.tabsList));
+			router.push(state.active_path);
+		},
+		//初始化导航样式
+		initMenuStatus(state,path){
+			state.menuList.map((menu,index) => {
+				menu.children.map(child => {
+					if(child.path == path){
+						menu.active = true;
+						child.active = true;
+					}else{
+						child.active = false;
+					}
+				})
+			})
 		}
+
 	},
 	actions: {
 
