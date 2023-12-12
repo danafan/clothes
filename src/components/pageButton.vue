@@ -1,34 +1,47 @@
 <template>
-	<div class="button_container flex ac ml16 pointer">
-		<img class="button_img" :src="img">
-		<div class="f14 space-nowrap">{{text}}</div>
-	</div>
+	<div class="button_style pointer" :class="[{'primary':type == 'primary'},{'plain':type == 'plain'},{'primary_disabled':type == 'primary_disabled'},{'plain_disabled':type == 'plain_disabled'}]">{{text}}</div>
 </template>
 <script>
 	export default{
 		props:{
-			img:{
+			type:{
 				type:String,
-			default:''
+			default:'primary'
 			},
 			text:{
 				type:String,
-			default:''
+			default:'查询'
 			}
 		}
 	}
 </script>
 <style lang="less" scoped>
-	.button_container{
+	.button_style{
+		width: 88px;
+		text-align: center;
+		height: 40px;
+		line-height: 40px;
+		border-radius: 8px;
+		font-size: 14px;
+	}
+	.primary{
+		background: #609DFF;
+		color: #ffffff;
+	}
+	.primary_disabled{
+		cursor:no-drop;
+		background: #CCCCCC;
+		color: #ffffff;
+	}
+	.plain{
 		border: 1px solid #609DFF;
-		border-radius: 4px;
-		height: 32px;
-		padding: 0 16px;
-		color:#609DFF;
-		.button_img{
-			margin-right: 4px;
-			width: 14px;
-			height: 14px;
-		}
+		background: #EBF3FF;
+		color: #609DFF;
+	}
+	.plain_disabled{
+		cursor:no-drop;
+		border: 1px solid #AEAEAE;
+		background: #EEEEEE;
+		color: #989898;
 	}
 </style>
