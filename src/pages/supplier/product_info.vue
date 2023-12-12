@@ -1,5 +1,5 @@
 <template>
-	<div class="h_100 flex fc">
+	<div class="w_100 h_100 flex fc">
 		<div class="flex jsb mb24">
 			<PageRadio :radioList="radio_list" :activeIndex="active_index" @checkRadio="checkRadio"/>
 			<div class="flex">
@@ -8,7 +8,7 @@
 			</div>
 		</div>
 		<!-- 筛选条件 -->
-		<div class="screen_content">
+		<div v-show="unfold">
 			<el-form :inline="true">
 				<el-form-item label="时间：">
 					<el-date-picker v-model="date" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
@@ -54,8 +54,8 @@
 			</el-form>
 		</div>
 		<!-- 表格内容 -->
-		<div class="table_content">
-			<div class="p16 flex ac jsb">
+		<div class="table_content" id="table_content">
+			<div class="p16 flex ac jsb" id="table_setting">
 				<div class="table_color f14 fw500">数据列表</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/jian_icon.png')" text="产品检验项目表"/>
@@ -65,6 +65,7 @@
 					<SettingButton :img="require('@/static/create_icon.png')" text="新建"/>
 				</div>
 			</div>
+			<CustomTable :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange"/>
 		</div>
 		<Pagination :page="page" :total="total" @changePage="changePage"/>
 	</div>
@@ -75,6 +76,7 @@
 	import ScreenButton from '@/components/screenButton'
 	import PageButton from '@/components/pageButton'
 	import Pagination from '@/components/pagination'
+	import CustomTable from '@/components/customTable'
 	export default{
 		data(){
 			return{
@@ -136,9 +138,123 @@
 				person_ids:[],						//选中的价格类型
 				page:1,
 				total:100,
+				titleList:[{
+					label:'系列',
+					prop:'xl',
+					sort:true,
+				},{
+					label:'主图',
+					prop:'zt',
+				},{
+					label:'细节图',
+					prop:'xjt',
+				},{
+					label:'产品品类',
+					prop:'pl',
+				},{
+					label:'品名',
+					prop:'pm',
+				},{
+					label:'季节',
+					prop:'jj',
+				},{
+					label:'产品款号',
+					prop:'cpkh',
+				},{
+					label:'产品货号',
+					prop:'cphh',
+				},{
+					label:'SPU',
+					prop:'spu',
+				},{
+					label:'SKU',
+					prop:'sku',
+				},{
+					label:'色号',
+					prop:'sh',
+				},{
+					label:'颜色名称颜色',
+					prop:'ysmc',
+				}],
+				tableData:[{
+					xl:'无',
+					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
+					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
+					pl:'羽绒服羽绒服',
+					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
+					jj:'冬季',
+					cpkh:'KOD9',
+					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
+					spu:'12345678902435463761',
+					sku:'135er4y45d53te64gft3',
+					sh:'1E5ErGy45d53tE64gfE3',
+					ysmc:'米白09'
+				},{
+					xl:'无',
+					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
+					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
+					pl:'羽绒服羽绒服',
+					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
+					jj:'冬季',
+					cpkh:'KOD9',
+					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
+					spu:'12345678902435463761',
+					sku:'135er4y45d53te64gft3',
+					sh:'1E5ErGy45d53tE64gfE3',
+					ysmc:'米白09'
+				},{
+					xl:'无',
+					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
+					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
+					pl:'羽绒服羽绒服',
+					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
+					jj:'冬季',
+					cpkh:'KOD9',
+					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
+					spu:'12345678902435463761',
+					sku:'135er4y45d53te64gft3',
+					sh:'1E5ErGy45d53tE64gfE3',
+					ysmc:'米白09'
+				},{
+					xl:'无',
+					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
+					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
+					pl:'羽绒服羽绒服',
+					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
+					jj:'冬季',
+					cpkh:'KOD9',
+					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
+					spu:'12345678902435463761',
+					sku:'135er4y45d53te64gft3',
+					sh:'1E5ErGy45d53tE64gfE3',
+					ysmc:'米白09'
+				}],
+				table_height:0
 			}
 		},
-		methods:{
+		watch:{
+			unfold:function(n,o){
+				//设置表格高度
+				this.onResize();
+			}
+		},
+		destroyed() {
+			window.removeEventListener("resize", () => {});
+		},
+		mounted() {
+    		//设置表格高度
+			this.onResize();
+			window.addEventListener("resize", this.onResize());
+		},
+		methods: {
+    		//设置表格高度
+			onResize() {
+				this.$nextTick(() => {
+					let table_content_height = document.getElementById("table_content").offsetHeight;
+					let table_setting_height = document.getElementById("table_setting").offsetHeight;
+					this.table_height = table_content_height - table_setting_height - 30 + "px";
+				});
+			},
 			//切换单选
 			checkRadio(index){
 				this.active_index = index;
@@ -146,6 +262,14 @@
 			//切换页码
 			changePage(page){
 				console.log(page)
+			},
+			//监听排序
+			sortChange(v){
+				console.log(v)
+			},
+			//监听多选
+			selectionChange(selected_list){
+				console.log(selected_list)
 			}
 		},
 		components:{
@@ -153,7 +277,8 @@
 			SettingButton,
 			ScreenButton,
 			PageButton,
-			Pagination
+			Pagination,
+			CustomTable
 		}
 	}
 </script>

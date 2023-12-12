@@ -67,7 +67,6 @@
 					<img class="tab_close" src="@/static/tab_close.png" @click.stop="$store.commit('deleteTab',item)" v-if="!item.hover && !item.active && !item.default">
 				</div>
 			</div>
-			<!-- 页面 -->
 			<div class="page_container flex-1">
 				<router-view></router-view>
 			</div>
