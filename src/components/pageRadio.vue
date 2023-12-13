@@ -1,9 +1,10 @@
 <template>
 	<div class="radio_container flex">
-		<div class="radio_item flex ac pointer" :class="[{'left_radius':index == 0},{'right_radius':index == radioList.length - 1},{'border_left_none':index > 0 && index != activeIndex},{'border_right_none':index == activeIndex - 1},{'active_radio_item':index == activeIndex},{'active_left_boder':index > 0 && index == activeIndex}]" v-for="(item,index) in radioList" @click="$emit('checkRadio',index)">
+		<div class="radio_item relative flex ac pointer" :class="[{'left_radius':index == 0},{'right_radius':index == radioList.length - 1},{'border_left_none':index > 0 && index != activeIndex},{'border_right_none':index == activeIndex - 1},{'active_radio_item':index == activeIndex},{'active_left_boder':index > 0 && index == activeIndex}]" v-for="(item,index) in radioList" @click="$emit('checkRadio',index)">
 			<img class="radio_icon" :src="item.icon_active" v-if="activeIndex == index">
 			<img class="radio_icon" :src="item.icon" v-else>
 			<div class="f14 fw400 space-nowrap">{{item.name}}</div>
+			<div class="dot absolute top-0" v-if="item.unread"></div>
 		</div>
 	</div>
 </template>
@@ -34,6 +35,13 @@
 			margin-right: 8px;
 			width: 17px;
 			height: 17px;
+		}
+		.dot{
+			background: #DB0000;
+			border-radius: 4px;
+			right: 0;
+			width: 8px;
+			height: 8px;
 		}
 	}
 	.active_radio_item{

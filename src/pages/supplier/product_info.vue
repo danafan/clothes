@@ -1,6 +1,6 @@
 <template>
 	<div class="w_100 h_100 flex fc">
-		<div class="flex jsb mb24">
+		<div class="flex jsb mb16">
 			<PageRadio :radioList="radio_list" :activeIndex="active_index" @checkRadio="checkRadio"/>
 			<div class="flex">
 				<SettingButton :img="require('@/static/refresh_icon.png')" text="刷新"/>
@@ -15,9 +15,12 @@
 					</el-date-picker>
 				</el-form-item>
 				<el-form-item label="系列：">
-					<el-input style="width:234px" v-model="xl" placeholder="请输入"></el-input>
+					<el-select style="width:234px" v-model="xl_ids" multiple placeholder="请选择">
+						<el-option v-for="item in xl_list" :key="item.id" :label="item.name" :value="item.id">
+						</el-option>
+					</el-select>
 				</el-form-item>
-				<el-form-item label="产品品类：">
+				<el-form-item label="品类：">
 					<el-select style="width:234px" v-model="category_ids" multiple placeholder="请选择">
 						<el-option v-for="item in category_list" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
@@ -85,26 +88,34 @@
 					name:'待审核',
 					icon:require('@/static/await_audit.png'),
 					icon_active:require('@/static/await_audit_active.png'),
+					unread:false
 				},{
 					id:2,
 					name:'已通过',
 					icon:require('@/static/pass_icon.png'),
 					icon_active:require('@/static/pass_icon_active.png'),
+					unread:false
 				},{
 					id:3,
 					name:'已拒绝',
 					icon:require('@/static/turn_down.png'),
 					icon_active:require('@/static/turn_down_active.png'),
+					unread:true
 				},{
 					id:4,
 					name:'全部',
 					icon:require('@/static/all_icon.png'),
 					icon_active:require('@/static/all_icon_active.png'),
+					unread:false
 				}],									//筛选条件
 				active_index:0,						//当前选中的下标
 				unfold:true,						//筛选条件是否展开
 				date:[],							//时间选择
-				xl:"",								//系列
+				xl_list:[{
+					name:'系列1',
+					id:1
+				}],									//系列列表
+				xl_ids:[],							//选中的系列
 				category_list:[{
 					name:'分类1',
 					id:1
@@ -252,7 +263,7 @@
 				this.$nextTick(() => {
 					let table_content_height = document.getElementById("table_content").offsetHeight;
 					let table_setting_height = document.getElementById("table_setting").offsetHeight;
-					this.table_height = table_content_height - table_setting_height - 30 + "px";
+					this.table_height = table_content_height - table_setting_height - 30;
 				});
 			},
 			//切换单选
