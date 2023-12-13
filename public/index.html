@@ -40,6 +40,9 @@
     .table_color{
       color: #4E5969;
     }
+    .default_color{
+      color: #718096;
+    }
     .fw400{
       font-weight: 400;
     }
@@ -319,6 +322,24 @@
       text-overflow:ellipsis;
     }
 
+    /*表单每项*/
+    .el-form-item{
+      margin-bottom: 16px!important;
+      margin-right: 40px!important;
+    }
+    .el-form-item__label{
+      font-size: 14px!important;
+      color: #1D2129!important;
+      font-weight: 400!important;
+      padding-right: 4px!important;
+    }
+    .custom_label{
+      width: 98px;
+      text-align: end;
+      font-size: 14px;
+      color: #718096;
+      font-weight: 400;
+    }
     /*日期区间筛选器*/
     .el-date-editor{
       border:none !important;
@@ -330,6 +351,12 @@
     }
     /*普通输入框*/
     .el-input__inner{
+      border:none !important;
+      border-radius: 8px !important;
+      background: #F7F8FA !important;
+    }
+    /*多行输入框*/
+    .el-textarea__inner{
       border:none !important;
       border-radius: 8px !important;
       background: #F7F8FA !important;
@@ -402,6 +429,27 @@
     }
     .el-pagination .el-pagination__editor .el-input__inner{
       background: #ffffff!important;
+    }
+
+    /*弹窗*/
+    .el-dialog__header{
+      padding: 16px!important;
+    }
+    .el-dialog__body{
+      padding: 16px 24px!important;
+    }
+    .dialog_title{
+      font-weight: bold!important;
+      font-size: 18px!important;
+      color: #515A68!important;
+    }
+    .close_dialog{
+      width: 28px!important;
+      height: 28px!important;
+    }
+    .dialog_style{
+      border-radius: 16px!important;
+      padding: 0!important;
     }
   </style>
 </head>

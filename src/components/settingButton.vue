@@ -1,5 +1,5 @@
 <template>
-	<div class="button_container flex ac ml16 pointer">
+	<div class="button_container flex ac ml16 pointer" @click="$emit('callback')">
 		<img class="button_img" :src="img">
 		<div class="f14 space-nowrap">{{text}}</div>
 	</div>

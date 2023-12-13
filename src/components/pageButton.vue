@@ -1,5 +1,5 @@
 <template>
-	<div class="button_style pointer" :class="[{'primary':type == 'primary'},{'plain':type == 'plain'},{'primary_disabled':type == 'primary_disabled'},{'plain_disabled':type == 'plain_disabled'}]">{{text}}</div>
+	<div class="button_style pointer" :class="[{'primary':type == 'primary'},{'plain':type == 'plain'},{'primary_disabled':type == 'primary_disabled'},{'plain_disabled':type == 'plain_disabled'},{'primary_big':type == 'primary_big'}]" @click="$emit('callback')">{{text}}</div>
 </template>
 <script>
 	export default{
@@ -32,6 +32,12 @@
 		cursor:no-drop;
 		background: #CCCCCC;
 		color: #ffffff;
+	}
+	.primary_big{
+		background: #609DFF;
+		color: #ffffff;
+		width: 160px;
+		height: 40px;
 	}
 	.plain{
 		border: 1px solid #609DFF;

@@ -15,7 +15,7 @@
 							<el-image :z-index="2006" :src="img_url" fit="scale-down" :preview-src-list="scope.row.xjt"></el-image>
 						</el-carousel-item>
 						<div class="carousel_arrow_row flex ac jsb">
-							<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="$refs.carouselRef[1].prev()">
+							<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="prev">
 							<img class="carousel_arrow pointer" src="@/static/carousel_right_arrow.png" @click="$refs.carouselRef[1].next()">
 						</div>
 					</el-carousel>
@@ -46,6 +46,10 @@
 			}
 		},
 		methods:{
+			prev(){
+				console.log(this.$refs.carouselRef)
+				// this.$refs.carouselRef[1].prev();
+			},
 			//监听排序
 			sortChange({ column, prop, order }){
 				let sort = "";
