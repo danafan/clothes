@@ -3,14 +3,15 @@ module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
   devServer: {
-    port: '7777',
-    // proxy: {
-    //   '/': {
-    //     target: 'http://selectiontest.92nu.com',
-    //     ws: true,
-    //     changOlrigin: true,   
-    //   }
-    // }
+    proxy: {
+      '/': {
+        target: 'http://testpp.92nu.com',
+        ws: true,
+        changOlrigin: true,   
+      }
+    },
+    webSocketServer:false,
+    port: '7777'
   },
 })
 
@@ -22,11 +23,12 @@ module.exports = defineConfig({
 //   devServer: {
 //     proxy: {
 //       '/': {
-//         target: 'http://selectiontest.92nu.com',
+//         target: 'http://testpp.92nu.com',
 //         ws: true,
 //         changOlrigin: true,   
 //       }
-//     }
+//     },
+//     port: '7777'
 //   },
 //   lintOnSave: false,
 //   chainWebpack: (config)=>{

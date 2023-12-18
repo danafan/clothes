@@ -5,12 +5,12 @@
 			</el-table-column>
 			<el-table-column fixed label="序号" align="center" type="index" width="60">
 			</el-table-column>
-			<el-table-column :label="item.label" :prop="item.prop" :width="flexColumnWidth(item.prop,item.label,tableData,item.sort)" :sortable="item.sort?item.sort:false" align="center" v-for="item in titleList">
+			<el-table-column :label="item.label" :prop="item.prop" :width="flexColumnWidth(item.prop,item.label,tableData,item.sort,item.type)" :sortable="item.sort?item.sort:false" align="center" v-for="item in titleList">
 				<template slot-scope="scope">
 					<!-- 普通图片 -->
-					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="scope.row.zt" fit="scale-down" :preview-src-list="[scope.row.zt]" v-if="item.prop == 'zt'"></el-image>
+					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="scope.row.zt" fit="scale-down" :preview-src-list="[scope.row.zt]" v-if="item.type == 1"></el-image>
 					<!-- 轮播图片 -->
-					<el-carousel ref="carouselRef" arrow="never" indicator-position="none" :autoplay="false" height="110px" v-else-if="item.prop == 'xjt'">
+					<el-carousel ref="carouselRef" arrow="never" indicator-position="none" :autoplay="false" height="110px" v-else-if="item.type == 2">
 						<el-carousel-item v-for="(img_url,index) in scope.row.xjt" :key="index">
 							<el-image :z-index="2006" :src="img_url" fit="scale-down" :preview-src-list="scope.row.xjt"></el-image>
 						</el-carousel-item>
@@ -27,6 +27,10 @@
 	</div>
 </template>
 <script>
+	// 字段类型（type）：
+	// 1、图片
+	// 2、轮播图
+	// 3、按钮
 	export default{
 		props:{
 			//表格数据
@@ -65,7 +69,7 @@
 				this.$emit('selectionChange',v);
 			},
 			// 自适应表格列宽
-			flexColumnWidth(prop,label, tableData,sort) {
+			flexColumnWidth(prop,label, tableData,sort,type) {
 				prop = prop + ''
 				let columnContent = ''
 				if (!tableData || !tableData.length || tableData.length === 0 || tableData === undefined) {
@@ -78,7 +82,7 @@
 				let index = 0
 				for (let i = 0; i < tableData.length; i++) {
 					if (tableData[i][prop] === null) {
-						return
+						tableData[i][prop] = '';
 					}
 					const now_temp = tableData[i][prop] + ''
 					const max_temp = tableData[index][prop] + ''
@@ -87,7 +91,6 @@
 					}
 				}
 				columnContent = tableData[index][prop].length > label.length?tableData[index][prop]:label
-			    // console.log('该列数据[i]:', columnContent)
 			    // 以下分配的单位长度可根据实际需求进行调整
 				let flexWidth = 0
 				var regPos = /^[0-9]+.?[0-9]*/; //判断是否是数字。
@@ -104,7 +107,7 @@
 						flexWidth += 12
 					}
 				}
-				if (flexWidth >= 275) {
+				if (flexWidth >= 95 && flexWidth >= 275) {
         			// 设置最小宽度
 					flexWidth = 275
 				}
@@ -117,11 +120,11 @@
 					flexWidth += 14
 				}
 				//处理图片展示
-				if(prop == 'zt'){
+				if(type == 1){
 					flexWidth = 148
 				}
 				//处理走马灯展示
-				if(prop == 'xjt'){
+				if(type == 2){
 					flexWidth = 176
 				}
 				return flexWidth + 'px'

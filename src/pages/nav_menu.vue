@@ -74,6 +74,7 @@
 	</div>
 </template>
 <script>
+	import resource from '../api/resource.js'
 	export default{
 		data(){
 			return{
@@ -82,6 +83,9 @@
 		},
 		created(){
 			this.$store.commit('initMenuStatus',this.$route.path)
+			// resource.menuList().then(res => {
+
+			// })
 		},
 		computed:{
 			//菜单列表

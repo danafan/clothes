@@ -242,6 +242,8 @@
 	</div>
 </template>
 <script>
+	import resource from '@/api/resource.js'
+
 	import PageRadio from '@/components/pageRadio'
 	import SettingButton from '@/components/settingButton'
 	import ScreenButton from '@/components/screenButton'
@@ -331,26 +333,19 @@
 				titleList:[
 				{
 					label:'系列',
-					prop:'xl',
-					sort:true,
-				},{
-					label:'主图',
-					prop:'zt',
-				},{
-					label:'细节图',
-					prop:'xjt',
+					prop:'series_name',
 				},{
 					label:'产品品类',
-					prop:'pl',
+					prop:'category_name',
 				},{
 					label:'品名',
-					prop:'pm',
+					prop:'goods_name',
 				},{
 					label:'季节',
-					prop:'jj',
+					prop:'season',
 				},{
 					label:'产品款号',
-					prop:'cpkh',
+					prop:'style_name',
 				},{
 					label:'产品货号',
 					prop:'cphh',
@@ -362,67 +357,97 @@
 					prop:'sku',
 				},{
 					label:'色号',
-					prop:'sh',
+					prop:'color_number',
 				},{
-					label:'颜色名称颜色',
-					prop:'ysmc',
+					label:'颜色名称',
+					prop:'color',
+				},{
+					label:'商品单位',
+					prop:'unit',
+				},{
+					label:'主图',
+					prop:'main_img',
+					type:1
+				},{
+					label:'吊牌价',
+					prop:'dpj',
+				},{
+					label:'日常价',
+					prop:'rcj',
+				},{
+					label:'活动价',
+					prop:'hdj',
+				},{
+					label:'大促价',
+					prop:'dcj',
+				},{
+					label:'折扣',
+					prop:'discount',
+				},{
+					label:'规格尺码',
+					prop:'spec',
+				},{
+					label:'材质',
+					prop:'material_quality',
+				},{
+					label:'产品卖点',
+					prop:'selling_point',
+				},{
+					label:'使用人群',
+					prop:'user_group',
+				},{
+					label:'细节图',
+					prop:'detail_imgs',
+					type:2
+				},{
+					label:'预计上架时间',
+					prop:'up_time',
+				},{
+					label:'规划色',
+					prop:'plan_color',
+				},{
+					label:'字体',
+					prop:'typeface',
+				},{
+					label:'工艺',
+					prop:'technology',
+				},{
+					label:'参考图案',
+					prop:'reference_img',
+					type:1
+				},{
+					label:'备注补充内容',
+					prop:'remark',
+				},{
+					label:'审核意见',
+					prop:'brand_audit_remark',
+				},{
+					label:'知核意见',
+					prop:'brand_zhyj',
+				},{
+					label:'工艺资料包',
+					prop:'technology_url',
+				},{
+					label:'线性图稿',
+					prop:'linear_draft_url',
+				},{
+					label:'新建时间',
+					prop:'add_time',
+				},{
+					label:'状态',
+					prop:'brand_ksbm',
+				},{
+					label:'品牌款号',
+					prop:'brand_ksbm',
+				},{
+					label:'寄样物流信息',
+					prop:'logistics_name',
+				},{
+					label:'质检报告',
+					prop:'quality_inspection_file_url',
 				}
-				],
-				tableData:[
-				{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				},{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				},{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				},{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				}
-				],
+				],									//表头信息
+				tableData:[],						//表格数据
 				table_height:0,
 				dialog:false,						//新建/编辑弹窗
 				info:{
@@ -471,6 +496,11 @@
 		destroyed() {
 			window.removeEventListener("resize", () => {});
 		},
+		created(){
+			console.log(this.titleList.length)
+			//获取商品资料列表
+			this.supplierGoodsList();
+		},
 		mounted() {
     		//设置表格高度
 			this.onResize();
@@ -484,6 +514,17 @@
 					let table_setting_height = document.getElementById("table_setting").offsetHeight;
 					this.table_height = table_content_height - table_setting_height - 30;
 				});
+			},
+			//获取商品资料列表
+			supplierGoodsList(){
+				resource.supplierGoodsList().then(res => {
+					if (res.data.code == 0) {
+						let data = res.data.data;
+						this.tableData = data.data;
+					}else{
+
+					}
+				})
 			},
 			//切换单选
 			checkRadio(index){
