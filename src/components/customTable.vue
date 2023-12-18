@@ -8,17 +8,19 @@
 			<el-table-column :label="item.label" :prop="item.prop" :width="flexColumnWidth(item.prop,item.label,tableData,item.sort,item.type)" :sortable="item.sort?item.sort:false" align="center" v-for="item in titleList">
 				<template slot-scope="scope">
 					<!-- 普通图片 -->
-					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="scope.row.zt" fit="scale-down" :preview-src-list="[scope.row.zt]" v-if="item.type == 1"></el-image>
+					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="domain + scope.row[item.prop]" fit="scale-down" v-if="item.type == 1"></el-image>
 					<!-- 轮播图片 -->
 					<el-carousel ref="carouselRef" arrow="never" indicator-position="none" :autoplay="false" height="110px" v-else-if="item.type == 2">
-						<el-carousel-item v-for="(img_url,index) in scope.row.xjt" :key="index">
-							<el-image :z-index="2006" :src="img_url" fit="scale-down" :preview-src-list="scope.row.xjt"></el-image>
+						<el-carousel-item v-for="(img_url,index) in scope.row[item.prop]" :key="index">
+							<el-image :z-index="2006" :src="domain + img_url" fit="scale-down"></el-image>
 						</el-carousel-item>
 						<div class="carousel_arrow_row flex ac jsb">
 							<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="prev">
 							<img class="carousel_arrow pointer" src="@/static/carousel_right_arrow.png" @click="$refs.carouselRef[1].next()">
 						</div>
 					</el-carousel>
+					<!-- 预览按钮 -->
+					<div class="text_style" v-else-if="item.type == 3" @click="openWindow(scope.row[item.prop])">预览</div>
 					<!-- 普通文字 -->
 					<div class="table_cell table_color f14 fw500" v-else>{{scope.row[item.prop]}}</div>
 				</template>
@@ -30,7 +32,8 @@
 	// 字段类型（type）：
 	// 1、图片
 	// 2、轮播图
-	// 3、按钮
+	// 3、预览按钮
+	import PageButton from '@/components/pageButton'
 	export default{
 		props:{
 			//表格数据
@@ -47,6 +50,12 @@
 			tableHeight:{
 				type:Number,
 			default:0
+			}
+		},
+		computed:{
+			//文件前缀
+			domain(){
+				return this.$store.state.domain;
 			}
 		},
 		methods:{
@@ -91,6 +100,7 @@
 					}
 				}
 				columnContent = tableData[index][prop].length > label.length?tableData[index][prop]:label
+
 			    // 以下分配的单位长度可根据实际需求进行调整
 				let flexWidth = 0
 				var regPos = /^[0-9]+.?[0-9]*/; //判断是否是数字。
@@ -107,9 +117,13 @@
 						flexWidth += 12
 					}
 				}
-				if (flexWidth >= 95 && flexWidth >= 275) {
+				if (flexWidth >= 275) {
         			// 设置最小宽度
 					flexWidth = 275
+				}
+				if (flexWidth >= 95 && flexWidth < 275) {
+        			// 设置最小宽度
+					flexWidth = flexWidth + 32
 				}
 				if (flexWidth < 95) {
         			// 设置最小宽度
@@ -127,9 +141,20 @@
 				if(type == 2){
 					flexWidth = 176
 				}
+				//预览按钮展示
+				if(type == 3){
+					flexWidth = 96
+				}
 				return flexWidth + 'px'
+			},
+			//打开新窗口
+			openWindow(url){
+				window.open(this.domain + url)
 			}
 
+		},
+		components:{
+			PageButton
 		}
 	}
 </script>
@@ -164,5 +189,15 @@
 	}
 	.custom_table .el-image img{
 		display: block;
+	}
+</style>
+<style lang="less" scoped>
+	.text_style{
+		cursor: pointer;
+		padding-left: 5px;
+		padding-right: 5px;
+		font-size: 14px;
+		font-weight: 500;
+		color: #609DFF;
 	}
 </style>

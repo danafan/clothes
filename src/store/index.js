@@ -72,6 +72,7 @@ const store = new Vuex.Store({
 			hover:false,
 			active:true
 		}],												//当前已打开的菜单列表
+		domain:"",										//文件前缀
 	},
 	mutations: {
 		//切换一级菜单展开/收起状态
@@ -182,6 +183,10 @@ const store = new Vuex.Store({
 					}
 				})
 			})
+		},
+		//设置用户信息
+		setUserInfo(state,user_info){
+			state.domain = user_info.img_domain;
 		}
 
 	},

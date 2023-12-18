@@ -11,48 +11,48 @@
 		<div v-show="unfold">
 			<el-form :inline="true">
 				<el-form-item label="时间：">
-					<el-date-picker style="width:234px" v-model="date" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+					<el-date-picker style="width:234px" v-model="date" unlink-panels type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
 					</el-date-picker>
 				</el-form-item>
 				<el-form-item label="系列：">
-					<el-select style="width:234px" v-model="xl_ids" multiple placeholder="请选择">
-						<el-option v-for="item in xl_list" :key="item.id" :label="item.name" :value="item.id">
+					<el-select style="width:234px" v-model="series_ids" clearable multiple filterable placeholder="请选择">
+						<el-option v-for="item in series_list" :key="item.series_id" :label="item.series_name" :value="item.series_id">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="品类：">
-					<el-select style="width:234px" v-model="category_ids" multiple placeholder="请选择">
-						<el-option v-for="item in category_list" :key="item.id" :label="item.name" :value="item.id">
+					<el-select style="width:234px" v-model="cate_ids" clearable multiple filterable placeholder="请选择">
+						<el-option v-for="item in cate_list" :key="item.category_id" :label="item.category_name" :value="item.category_id">
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="品名：">
-					<el-input style="width:234px" v-model="pm" placeholder="请输入"></el-input>
+				<el-form-item label="产品名称：">
+					<el-input style="width:234px" v-model="goods_name" clearable placeholder="请输入"></el-input>
 				</el-form-item>
 				<el-form-item label="搜索：">
-					<el-input style="width:198px" v-model="search" placeholder="款号/货号/商品编码"></el-input>
+					<el-input style="width:198px" v-model="search" clearable placeholder="款号/货号/商品编码"></el-input>
 				</el-form-item>
 				<el-form-item>
 					<div class="flex">
-						<el-select style="width:136px;margin-right: 8px;" v-model="price_type_id" placeholder="点击查看">
+						<el-select style="width:136px;margin-right: 8px;" v-model="price_type" placeholder="点击查看">
 							<el-option v-for="item in price_type_list" :key="item.id" :label="item.name" :value="item.id">
 							</el-option>
 						</el-select>
-						<el-input style="width:136px" type="number" v-model="bottom_price" placeholder="最低价"></el-input>
+						<el-input style="width:136px" type="number" clearable v-model="start_price" placeholder="最低价"></el-input>
 						&nbsp
 						~
 						&nbsp
-						<el-input style="width:136px" type="number" v-model="top_price" placeholder="最高价"></el-input>
+						<el-input style="width:136px" type="number" clearable v-model="end_price" placeholder="最高价"></el-input>
 					</div>
 				</el-form-item>
 				<el-form-item label="使用人群：">
-					<el-select style="width:234px" v-model="person_ids" multiple placeholder="请选择">
-						<el-option v-for="item in person_list" :key="item.id" :label="item.name" :value="item.id">
+					<el-select style="width:234px" v-model="user_group" clearable multiple filterable placeholder="请选择">
+						<el-option v-for="item in user_list" :key="item.wx_user_id" :label="item.wx_user_name" :value="item.wx_user_id">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item>
-					<PageButton/>
+					<PageButton @callback="changePage(1)"/>
 				</el-form-item>
 			</el-form>
 		</div>
@@ -70,9 +70,9 @@
 			</div>
 			<CustomTable :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange"/>
 		</div>
-		<Pagination :page="page" :total="total" @changePage="changePage"/>
+		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 新建/编辑 -->
-		<el-dialog title="收货地址" custom-class="dialog_style" top="24px" width="1204px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="dialog">
+		<el-dialog custom-class="dialog_style" top="24px" width="1204px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="dialog">
 			<div class="flex ac jsb" slot="title">
 				<div class="dialog_title">添加分类</div>
 				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="dialog = false">
@@ -82,161 +82,150 @@
 					<div>
 						<div class="flex ac mb24">
 							<div class="custom_label">品牌：</div>
-							<el-select style="width:280px" v-model="info.pp_ids" multiple placeholder="请选择">
-								<el-option v-for="item in pp_list" :key="item.id" :label="item.name" :value="item.id">
+							<el-select style="width:280px" v-model="info.brand_id" clearable>
+								<el-option v-for="item in brand_list" :key="item.brand_id" :label="item.brand_name" :value="item.brand_id">
 								</el-option>
 							</el-select>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">系列：</div>
-							<el-select style="width:280px" v-model="info.xl_ids" multiple placeholder="请选择">
-								<el-option v-for="item in xl_list" :key="item.id" :label="item.name" :value="item.id">
+							<el-select style="width:280px" v-model="info.series_id" clearable>
+								<el-option v-for="item in series_list" :key="item.series_id" :label="item.series_name" :value="item.series_id">
 								</el-option>
 							</el-select>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">季节：</div>
-							<el-select style="width:280px" v-model="info.jj_ids" multiple placeholder="请选择">
-								<el-option v-for="item in jj_list" :key="item.id" :label="item.name" :value="item.id">
-								</el-option>
-							</el-select>
+							<el-input style="width:280px" v-model="info.season" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">SKU：</div>
-							<el-input style="width:280px" v-model="info.sku"></el-input>
+							<el-input style="width:280px" v-model="info.sku" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">商品单位：</div>
-							<el-input style="width:280px" v-model="info.goods_unit"></el-input>
+							<el-input style="width:280px" v-model="info.unit" clearable></el-input>
 						</div>
 						<div class="flex mb24">
 							<div class="custom_label">主图：</div>
-							<UploadImage text="上传一张主图" :previewImages="info.main_image"/>
+							<UploadImage text="上传一张主图" :imgStr="info.main_img" @callback="uploadImage($event,'main_img')"/>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">日常价：</div>
-							<el-input type="number" style="width:280px" v-model="info.daily_price"></el-input>
+							<el-input type="number" style="width:280px" v-model="info.rcj" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">折扣：</div>
-							<el-input type="number" style="width:280px" v-model="info.discount"></el-input>
+							<el-input type="number" style="width:280px" v-model="info.discount" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">产品卖点：</div>
-							<el-input style="width:280px" v-model="info.selling_point"></el-input>
+							<el-input style="width:280px" v-model="info.selling_point" clearable></el-input>
 						</div>
 						<div class="flex ac">
 							<div class="custom_label">规划色：</div>
-							<el-input style="width:280px" v-model="info.plan_color"></el-input>
+							<el-input style="width:280px" v-model="info.plan_color" clearable></el-input>
 						</div>
 					</div>
 					<div>
 						<div class="flex ac mb24">
 							<div class="custom_label">工艺资料包：</div>
-							<UploadFile toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB"/>
+							<UploadFile toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB" @callback="uploadFile($event,'technology_url')"/>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">品类：</div>
-							<el-select style="width:280px" v-model="info.category_ids" multiple placeholder="请选择">
-								<el-option v-for="item in category_list" :key="item.id" :label="item.name" :value="item.id">
+							<el-select style="width:280px" v-model="info.category_id" clearable>
+								<el-option v-for="item in cate_list" :key="item.category_id" :label="item.category_name" :value="item.category_id">
 								</el-option>
 							</el-select>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">产品款号：</div>
-							<el-input style="width:280px" v-model="info.ksbm"></el-input>
+							<el-input style="width:280px" v-model="info.style_name" clearable></el-input>
+						</div>
+						<div class="flex ac mb24">
+							<div class="custom_label">产品货号：</div>
+							<el-input style="width:280px" v-model="info.cphh" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">色号：</div>
-							<el-input style="width:280px" v-model="info.color_num"></el-input>
+							<el-input style="width:280px" v-model="info.color_number" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">吊牌价：</div>
-							<el-input type="number" style="width:280px" v-model="info.tag_price"></el-input>
-						</div>
-						<div class="flex ac mb24">
-							<div class="custom_label">基本非基本：</div>
-							<el-input style="width:280px" v-model="info.is_jb"></el-input>
+							<el-input type="number" style="width:280px" v-model="info.dpj" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">活动价：</div>
-							<el-input type="number" style="width:280px" v-model="info.active_price"></el-input>
+							<el-input type="number" style="width:280px" v-model="info.hdj" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">规格（尺码）：</div>
-							<el-input style="width:280px" v-model="info.size"></el-input>
+							<el-input style="width:280px" v-model="info.spec" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">使用人群：</div>
-							<el-select style="width:280px" v-model="info.person_ids" multiple placeholder="请选择">
-								<el-option v-for="item in person_list" :key="item.id" :label="item.name" :value="item.id">
+							<el-select style="width:280px" v-model="info.user_group" clearable>
+								<el-option v-for="item in user_list" :key="item.wx_user_id" :label="item.wx_user_name" :value="item.wx_user_id">
 								</el-option>
 							</el-select>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">字体：</div>
-							<el-input style="width:280px" v-model="info.font"></el-input>
+							<el-input style="width:280px" v-model="info.typeface" clearable></el-input>
 						</div>
 						<div class="flex">
 							<div class="custom_label">参考图案：</div>
-							<el-input style="width:280px;" :rows="4" type="textarea" v-model="info.reference_pattern"></el-input>
+							<el-input style="width:280px" v-model="info.reference_img" clearable></el-input>
 						</div>
 					</div>
 					<div>
 						<div class="flex ac mb24">
 							<div class="custom_label">线性图稿：</div>
-							<UploadFile toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB"/>
+							<UploadFile toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB" @callback="uploadFile($event,'linear_draft_url')"/>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">品名：</div>
-							<el-input style="width:280px" v-model="info.goods_name"></el-input>
+							<el-input style="width:280px" v-model="info.goods_name" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">SPU：</div>
-							<el-input style="width:280px" v-model="info.spu"></el-input>
+							<el-input style="width:280px" v-model="info.spu" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">颜色名称：</div>
-							<el-input style="width:280px" v-model="info.color_name"></el-input>
-						</div>
-						<div class="flex ac mb24">
-							<div class="custom_label">价位：</div>
-							<el-input type="number" style="width:280px" v-model="info.price"></el-input>
-						</div>
-						<div class="flex ac mb24">
-							<div class="custom_label">品种细分：</div>
-							<el-input style="width:280px" v-model="info.breed"></el-input>
+							<el-input style="width:280px" v-model="info.color" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">大促价：</div>
-							<el-input type="number" style="width:280px" v-model="info.promotional_price"></el-input>
+							<el-input type="number" style="width:280px" v-model="info.dcj" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">材质：</div>
-							<el-input style="width:280px" v-model="info.promotional_price"></el-input>
+							<el-input style="width:280px" v-model="info.material_quality" clearable></el-input>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">预计上架时间：</div>
-							<el-date-picker style="width:280px" v-model="date" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+							<el-date-picker v-model="info.up_time" type="date" value-format="yyyy-MM-dd" placeholder="选择日期">
 							</el-date-picker>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">工艺：</div>
-							<el-input style="width:280px" v-model="info.technology"></el-input>
+							<el-input style="width:280px" v-model="info.technology" clearable></el-input>
 						</div>
 						<div class="flex">
 							<div class="custom_label">备注：</div>
-							<el-input style="width:280px;" :rows="4" type="textarea" v-model="info.remark"></el-input>
+							<el-input style="width:280px;" :rows="4" type="textarea" v-model="info.remark" clearable></el-input>
 						</div>
 					</div>
 				</div>
 				<div class="xjt flex">
 					<div class="custom_label">细节图：</div>
-					<UploadImage text="上传多张细节图" :maxNum="9" :previewImages="info.xjt"/>
+					<UploadImage text="上传多张细节图" :maxNum="9" :imgStr="info.detail_imgs" @callback="uploadImage($event,'detail_imgs')"/>
 				</div>
 			</div>
 			<div class="flex jc">
-				<PageButton type="primary_big" text="确定" @callback="dialog = false"/>
+				<PageButton type="primary_big" text="确定" @callback="commitFn"/>
 			</div>
 		</el-dialog>
 	</div>
@@ -257,6 +246,13 @@
 			return{
 				radio_list:[
 				{
+					id:-1,
+					name:'全部',
+					icon:require('@/static/all_icon.png'),
+					icon_active:require('@/static/all_icon_active.png'),
+					unread:false
+				},
+				{
 					id:1,
 					name:'待审核',
 					icon:require('@/static/await_audit.png'),
@@ -275,32 +271,22 @@
 					icon_active:require('@/static/turn_down_active.png'),
 					unread:true
 				},{
-					id:4,
-					name:'全部',
-					icon:require('@/static/all_icon.png'),
-					icon_active:require('@/static/all_icon_active.png'),
-					unread:false
+					id:0,
+					name:'已撤销',
+					icon:require('@/static/cancel_icon.png'),
+					icon_active:require('@/static/cancel_icon_active.png'),
+					unread:true
 				}
-				],					  //筛选条件
-				active_index:0,						//当前选中的下标
-				unfold:true,						//筛选条件是否展开
-				date:[],							//时间选择
-				xl_list:[{
-					name:'系列1',
-					id:1
-				}],					  //系列列表
-				xl_ids:[],							//选中的系列
-				category_list:[{
-					name:'分类1',
-					id:1
-				}],				  //产品分类列表
-				category_ids:[],					//选中的产品分类
-				pp_list:[{
-					name:'品牌1',
-					id:1
-				}],					  //品牌列表
-				pm:"",								//品名
-				search:"",							//搜索内容
+				],					  	  //筛选条件
+				active_index:0,							//当前选中的下标
+				date:[],								//时间选择
+				series_list:[],					  		//系列列表
+				series_ids:[],							//选中的系列
+				cate_list:[],				  			//产品分类列表
+				cate_ids:[],							//选中的产品分类
+				brand_list:[],					  		//品牌列表
+				goods_name:"",							//产品名称
+				search:"",								//搜索内容
 				price_type_list:[
 				{
 					id:1,
@@ -315,20 +301,15 @@
 					id:4,
 					name:'大促价'
 				}
-				],				  //价格类型列表
-				price_type_id:"",					//选中的价格类型
-				bottom_price:"",					//最低价
-				top_price:"",						//最高价
-				person_list:[{
-					id:1,
-					name:'人1'
-				}],				  //使用人群
-				person_ids:[],						//选中的价格类型
-				jj_list:[{
-					id:1,
-					name:'季节'
-				}],
+				],				  	  //价格类型列表
+				price_type:1,							//选中的价格类型
+				start_price:"",							//最低价
+				end_price:"",							//最高价
+				user_list:[],				  			//使用人群
+				user_group:[],							//选中的使用人群
+				unfold:true,							//筛选条件是否展开
 				page:1,
+				pagesize:10,
 				total:100,
 				titleList:[
 				{
@@ -413,8 +394,7 @@
 					prop:'technology',
 				},{
 					label:'参考图案',
-					prop:'reference_img',
-					type:1
+					prop:'reference_img'
 				},{
 					label:'备注补充内容',
 					prop:'remark',
@@ -427,9 +407,11 @@
 				},{
 					label:'工艺资料包',
 					prop:'technology_url',
+					type:3
 				},{
 					label:'线性图稿',
 					prop:'linear_draft_url',
+					type:3
 				},{
 					label:'新建时间',
 					prop:'add_time',
@@ -446,48 +428,47 @@
 					label:'质检报告',
 					prop:'quality_inspection_file_url',
 				}
-				],									//表头信息
-				tableData:[],						//表格数据
+				],						  //表头信息
+				tableData:[],							//表格数据
 				table_height:0,
-				dialog:false,						//新建/编辑弹窗
+				dialog:false,							//新建/编辑弹窗
 				info:{
-					pp_ids:[],			
-					xl_ids:[],		
-					jj_ids:[],		
+					brand_id:"",			
+					series_id:"",		
+					season:"",		
 					sku:"",
-					goods_unit:"",
-					main_image:['20231115100511_dingd_id_1042.png'],
-					daily_price:"",
+					unit:"",
+					main_img:"",
+					rcj:"",
 					discount:"",
 					selling_point:"",
 					plan_color:"",
-					xjt:['20231115100508_dingd_id_5535.png',
-						'20231115100511_dingd_id_1042.png',
-						'20231115100511_dingd_id_8702.png'],
-					category_ids:[],
-					ksbm:"",
-					color_num:"",
-					tag_price:"",
-					is_jb:"",
-					active_price:"",
-					size:"",
-					person_ids:"",
-					font:"",
-					reference_pattern:"",
+					category_id:"",
+					style_name:"",
+					cphh:"",
+					color_number:"",
+					dpj:"",
+					hdj:"",
+					spec:"",
+					user_group:"",
+					typeface:"",
+					reference_img:"",
 					goods_name:"",
 					spu:"",
-					color_name:"",
-					price:"",
-					breed:"",
-					promotional_price:"",
-					material:"",
-					date:[],
+					color:"",
+					dcj:"",
+					material_quality:"",
+					up_time:"",
 					technology:"",
-					remark:""
+					remark:"",
+					detail_imgs:'',
+					technology_url:'',
+					linear_draft_url:'',
 				},										//添加/编辑弹窗数据
 			}
 		},
 		watch:{
+			//监听筛选条件是否展开
 			unfold:function(n,o){
 				//设置表格高度
 				this.onResize();
@@ -497,9 +478,16 @@
 			window.removeEventListener("resize", () => {});
 		},
 		created(){
-			console.log(this.titleList.length)
+			//获取系列列表
+			this.ajaxSeries();
+			//获取品类列表
+			this.ajaxCates();
+			//获取用户列表
+			this.ajaxUsers();
+			//获取品牌列表
+			this.ajaxBrands();
 			//获取商品资料列表
-			this.supplierGoodsList();
+			this.getData();
 		},
 		mounted() {
     		//设置表格高度
@@ -515,24 +503,168 @@
 					this.table_height = table_content_height - table_setting_height - 30;
 				});
 			},
+			//获取系列列表
+			ajaxSeries(){
+				resource.ajaxSeries().then(res => {
+					if (res.data.code == 1) {
+						this.series_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//获取品类列表
+			ajaxCates(){
+				resource.ajaxCates().then(res => {
+					if (res.data.code == 1) {
+						this.cate_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//获取用户列表
+			ajaxUsers(){
+				resource.ajaxUsers({type:2}).then(res => {
+					if (res.data.code == 1) {
+						this.user_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//获取品牌列表
+			ajaxBrands(){
+				resource.ajaxBrands().then(res => {
+					if (res.data.code == 1) {
+						this.brand_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
 			//获取商品资料列表
-			supplierGoodsList(){
-				resource.supplierGoodsList().then(res => {
-					if (res.data.code == 0) {
+			getData(){
+				let arg = {
+					start_date:this.date && this.date.length> 0?this.date[0]:"",
+					end_date:this.date && this.date.length> 0?this.date[1]:"",
+					series_id:this.series_ids.join(','),
+					category_id:this.cate_ids.join(','),
+					goods_name:this.goods_name,
+					search:this.search,
+					price_type:this.price_type,
+					start_price:this.start_price,
+					end_price:this.end_price,
+					user_group:this.user_group.join(','),
+					page:this.page,
+					pagesize:this.pagesize
+				}
+				if(this.active_index > 0){
+					arg['supplier_status'] = this.radio_list[this.active_index].id;
+				}
+				resource.supplierGoodsList(arg).then(res => {
+					if (res.data.code == 1) {
 						let data = res.data.data;
 						this.tableData = data.data;
 					}else{
-
+						this.$message.warning(res.data.msg)
 					}
 				})
 			},
 			//切换单选
 			checkRadio(index){
 				this.active_index = index;
+				//点击查询
+				this.getData();
 			},
 			//切换页码
 			changePage(page){
-				console.log(page)
+				this.page = page;
+				//获取商品资料列表
+				this.getData();
+			},
+			//上传图片回调
+			uploadImage(img_arr,prop){
+				this.info[prop] = img_arr.join(',');
+			},
+			//上传文件回调
+			uploadFile(file_url,prop){
+				this.info[prop] = file_url;
+			},
+			//弹窗确定
+			commitFn(){
+				if(this.info.brand_id == ''){
+					this.$message.warning('请选择品牌！');
+				}else if(this.info.series_id == ''){
+					this.$message.warning('请选择系列！');
+				}else if(this.info.season == ''){
+					this.$message.warning('请输入季节！');
+				}else if(this.info.sku == ''){
+					this.$message.warning('请输入SKU！');
+				}else if(this.info.unit == ''){
+					this.$message.warning('请输入商品单位！');
+				}else if(this.info.main_img == ''){
+					this.$message.warning('请上传主图！');
+				}else if(this.info.rcj == ''){
+					this.$message.warning('请输入日常价！');
+				}else if(this.info.discount == ''){
+					this.$message.warning('请输入折扣！');
+				}else if(this.info.selling_point == ''){
+					this.$message.warning('请输入产品卖点！');
+				}else if(this.info.plan_color == ''){
+					this.$message.warning('请输入规划色！');
+				}else if(this.info.detail_imgs == ''){
+					this.$message.warning('至少上传一张细节图！');
+				}else if(this.info.technology_url == ''){
+					this.$message.warning('请上传工艺资料包！');
+				}else if(this.info.category_id == ''){
+					this.$message.warning('请选择品类！');
+				}else if(this.info.style_name == ''){
+					this.$message.warning('请输入产品款号！');
+				}else if(this.info.cphh == ''){
+					this.$message.warning('请输入产品货号！');
+				}else if(this.info.color_number == ''){
+					this.$message.warning('请输入色号！');
+				}else if(this.info.dpj == ''){
+					this.$message.warning('请输入吊牌价！');
+				}else if(this.info.hdj == ''){
+					this.$message.warning('请输入活动价！');
+				}else if(this.info.spec == ''){
+					this.$message.warning('请输入规格尺码！');
+				}else if(this.info.user_group == ''){
+					this.$message.warning('请选择使用人群！');
+				}else if(this.info.typeface == ''){
+					this.$message.warning('请输入字体！');
+				}else if(this.info.reference_img == ''){
+					this.$message.warning('请输入参考图案！');
+				}else if(this.info.linear_draft_url == ''){
+					this.$message.warning('请上传线性图稿！');
+				}else if(this.info.goods_name == ''){
+					this.$message.warning('请输入品名！');
+				}else if(this.info.spu == ''){
+					this.$message.warning('请输入SPU！');
+				}else if(this.info.color == ''){
+					this.$message.warning('请输入颜色名称！');
+				}else if(this.info.dcj == ''){
+					this.$message.warning('请输入大促价！');
+				}else if(this.info.material_quality == ''){
+					this.$message.warning('请输入材质！');
+				}else if(!this.info.up_time){
+					this.$message.warning('请选择预计上架时间！');
+				}else if(this.info.technology == ''){
+					this.$message.warning('请选择工艺！');
+				}else{
+					resource.supplierGoodsAdd(this.info).then(res => {
+						if (res.data.code == 1) {
+							//获取商品资料列表
+							this.getData();
+							this.dialog = false;
+							this.$message.success(res.data.msg)
+						}else{
+							this.$message.warning(res.data.msg)
+						}
+					})
+				}
 			},
 			//监听排序
 			sortChange(v){

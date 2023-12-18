@@ -21,7 +21,7 @@ const router = new Router({
 		component: login
 	},
 	{
-		path: "/",
+		path: "/nav_menu",
 		component: nav_menu,
 		name: "导航页",
 		children: [
