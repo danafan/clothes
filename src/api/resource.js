@@ -11,6 +11,10 @@ let path = {
 	//供应商
 	supplierGoodsList:'api/supplier_goods/list',		//商品资料列表
 	supplierGoodsAdd:'api/supplier_goods/add',			//上传商品资料
+	supplierGoodsDel:'api/supplier_goods/del',			//删除商品资料
+	supplierGoodsEdit:'api/supplier_goods/edit',		//编辑/获取详情
+	supplierGoodsAudit:'api/supplier_goods/apply_check',//发起审核
+	supplierGoodsCancel:'api/supplier_goods/revoke',	//撤销审核
 }					
 export default{
 	//获取用户信息
@@ -52,6 +56,26 @@ export default{
 	//上传商品资料
 	supplierGoodsAdd(params){
 		return http.post(path.supplierGoodsAdd, params)
+	},
+	//删除商品资料
+	supplierGoodsDel(params){
+		return http.post(path.supplierGoodsDel, params)
+	},
+	//获取商品详情
+	supplierGoodsEditGet(params){
+		return http.get(path.supplierGoodsEdit, params)
+	},
+	//编辑商品提交
+	supplierGoodsEditPost(params){
+		return http.post(path.supplierGoodsEdit, params)
+	},
+	//发起审核
+	supplierGoodsAudit(params){
+		return http.post(path.supplierGoodsAudit, params)
+	},
+	//撤销审核
+	supplierGoodsCancel(params){
+		return http.post(path.supplierGoodsCancel, params)
 	},
 }
 

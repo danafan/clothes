@@ -62,19 +62,19 @@
 				<div class="table_color f14 fw500">数据列表</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/jian_icon.png')" text="产品检验项目表"/>
-					<SettingButton :img="require('@/static/send_audit.png')" text="发起审核"/>
+					<SettingButton :img="require('@/static/send_audit.png')" text="发起审核" @callback="setFn(goods_id)"/>
 					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
 					<SettingButton :img="require('@/static/import_icon.png')" text="导入"/>
-					<SettingButton :img="require('@/static/create_icon.png')" text="新建" @callback="dialog = true"/>
+					<SettingButton :img="require('@/static/create_icon.png')" text="新建" @callback="addEditFn('','add')"/>
 				</div>
 			</div>
-			<CustomTable tableName="productInfo" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange" @deleteFn="deleteFn"/>
+			<CustomTable tableName="productInfo" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange" @copyFn="addEditFn($event,'copy')" @editFn="addEditFn($event,'edit')" @deleteFn="setFn($event,'deleteDialog')" @auditFn="setFn($event,'auditDialog')" @cancelFn="setFn($event,'cancelDialog')"/>
 		</div>
 		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 新建/编辑 -->
-		<el-dialog custom-class="dialog_style" top="24px" width="1204px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="dialog">
+		<el-dialog custom-class="dialog_style" top="24px" width="1204px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" @close="resetInfo" :visible.sync="dialog">
 			<div class="flex ac jsb" slot="title">
-				<div class="dialog_title">添加分类</div>
+				<div class="dialog_title">{{dialog_type == 'add'?'新建':dialog_type == 'copy'?'复用新建':'编辑'}}商品</div>
 				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="dialog = false">
 			</div>
 			<div>
@@ -108,7 +108,7 @@
 						</div>
 						<div class="flex mb24">
 							<div class="custom_label">主图：</div>
-							<UploadImage text="上传一张主图" :imgStr="info.main_img" @callback="uploadImage($event,'main_img')"/>
+							<UploadImage text="上传一张主图" :imgStr="info.main_img" :request="dialog_type == 'add'" @callback="uploadImage($event,'main_img')"/>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">日常价：</div>
@@ -130,7 +130,7 @@
 					<div>
 						<div class="flex ac mb24">
 							<div class="custom_label">工艺资料包：</div>
-							<UploadFile toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB" @callback="uploadFile($event,'technology_url')"/>
+							<UploadFile :fileName="info.technology_url" toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB" :request="dialog_type == 'add'" @callback="uploadFile($event,'technology_url')"/>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">品类：</div>
@@ -182,7 +182,7 @@
 					<div>
 						<div class="flex ac mb24">
 							<div class="custom_label">线性图稿：</div>
-							<UploadFile toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB" @callback="uploadFile($event,'linear_draft_url')"/>
+							<UploadFile :fileName="info.linear_draft_url" toast="只能上传.xls,.xlsx文件，且文件大小＜等于5MB" :request="dialog_type == 'add'" @callback="uploadFile($event,'linear_draft_url')"/>
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">品名：</div>
@@ -221,7 +221,7 @@
 				</div>
 				<div class="xjt flex">
 					<div class="custom_label">细节图：</div>
-					<UploadImage text="上传多张细节图" :maxNum="9" :imgStr="info.detail_imgs" @callback="uploadImage($event,'detail_imgs')"/>
+					<UploadImage text="上传多张细节图" :maxNum="9" :imgStr="info.detail_imgs" :request="dialog_type == 'add'" @callback="uploadImage($event,'detail_imgs')"/>
 				</div>
 			</div>
 			<div class="flex jc">
@@ -229,15 +229,17 @@
 			</div>
 		</el-dialog>
 		<!-- 删除 -->
-		<el-dialog custom-class="dialog_style" width="468px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="view_image_dialog">
-			<div class="flex ac jsb" slot="title">
-				<div class="dialog_title">{{goods_name}}</div>
-				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="view_image_dialog = false">
-			</div>
-			<div class="carousel_container relative" v-if="view_image_dialog">
-				
-			</div>
-		</el-dialog>
+		<custom-dialog dialogTitle="删除" ref="deleteDialog" @callback="supplierGoodsDel">
+			<div class="default_color f14 fw400">确定到删除该条资料内容吗？</div>
+		</custom-dialog>
+		<!-- 发起审核 -->
+		<custom-dialog dialogTitle="发起审核" ref="auditDialog" @callback="supplierGoodsAudit">
+			<div class="default_color f14 fw400">确定要发起选择的资料内容审核吗？</div>
+		</custom-dialog>
+		<!-- 撤销 -->
+		<custom-dialog dialogTitle="撤销" ref="cancelDialog" @callback="supplierGoodsCancel">
+			<div class="default_color f14 fw400">确定要撤销该条资料内容吗？</div>
+		</custom-dialog>
 	</div>
 </template>
 <script>
@@ -443,6 +445,7 @@
 				tableData:[],							//表格数据
 				table_height:0,
 				dialog:false,							//新建/编辑弹窗
+				dialog_type:'',							//弹窗类型
 				info:{
 					brand_id:"",			
 					series_id:"",		
@@ -475,7 +478,9 @@
 					detail_imgs:'',
 					technology_url:'',
 					linear_draft_url:'',
-				},										//添加/编辑弹窗数据
+				},							  //添加/编辑弹窗数据
+				goods_id:"",							//点击的商品ID
+				ref_name:"",							//删除/发起审核/撤销弹窗名称
 			}
 		},
 		watch:{
@@ -677,21 +682,121 @@
 				}else if(this.info.technology == ''){
 					this.$message.warning('请选择工艺！');
 				}else{
-					resource.supplierGoodsAdd(this.info).then(res => {
+					if(this.dialog_type == 'add' || this.dialog_type == 'copy'){//新建/复用新建
+						resource.supplierGoodsAdd(this.info).then(res => {
+							if (res.data.code == 1) {
+								//获取商品资料列表
+								this.getData();
+								this.dialog = false;
+								this.$message.success(res.data.msg)
+							}else{
+								this.$message.warning(res.data.msg)
+							}
+						})
+					}else{								//编辑
+						let arg = JSON.parse(JSON.stringify(this.info));
+						arg['goods_id'] = this.goods_id;
+						resource.supplierGoodsEditPost(arg).then(res => {
+							if (res.data.code == 1) {
+								//获取商品资料列表
+								this.getData();
+								this.dialog = false;
+								this.$message.success(res.data.msg)
+							}else{
+								this.$message.warning(res.data.msg)
+							}
+						})
+					}
+				}
+			},
+			//弹窗关闭
+			resetInfo(){
+				for(let k in this.info){
+					this.info[k] = "";
+				}
+			},
+			//点击删除/发起审核/撤销审核
+			setFn(goods_id,ref_name){
+				this.ref_name = ref_name;
+				if(goods_id == ''){
+					this.$message.warning('请至少勾选一项！');
+					return;
+				}
+				this.goods_id = goods_id;
+				this.$refs[this.ref_name].show_dialog = true;
+			},
+			//删除提交
+			supplierGoodsDel(){
+				resource.supplierGoodsDel({goods_id:this.goods_id}).then(res => {
+					if (res.data.code == 1) {
+						this.$message.success(res.data.msg);
+						this.$refs[this.ref_name].show_dialog = false;
+						//获取商品资料列表
+						this.getData();
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//发起审核提交
+			supplierGoodsAudit(){
+				resource.supplierGoodsAudit({goods_id:this.goods_id}).then(res => {
+					if (res.data.code == 1) {
+						this.$message.success(res.data.msg);
+						this.$refs[this.ref_name].show_dialog = false;
+						//获取商品资料列表
+						this.getData();
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//撤销审核提交
+			supplierGoodsCancel(){
+				resource.supplierGoodsCancel({goods_id:this.goods_id}).then(res => {
+					if (res.data.code == 1) {
+						this.$message.success(res.data.msg);
+						this.$refs[this.ref_name].show_dialog = false;
+						//获取商品资料列表
+						this.getData();
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//点击新建/编辑
+			addEditFn(goods_id,type){
+				this.dialog_type = type;
+				if(this.dialog_type == 'add'){
+					this.dialog = true;
+				}else if(this.dialog_type == 'copy'){
+					resource.supplierGoodsEditGet({goods_id:goods_id}).then(res => {
 						if (res.data.code == 1) {
-							//获取商品资料列表
-							this.getData();
-							this.dialog = false;
-							this.$message.success(res.data.msg)
+							let data = res.data.data;
+							data['detail_imgs'] = data.detail_imgs.join(',');
+							for(let k in this.info){
+								this.info[k] = data[k]
+							}
+							this.dialog = true;
+						}else{
+							this.$message.warning(res.data.msg)
+						}
+					})
+				}else{
+					this.goods_id = goods_id;
+					resource.supplierGoodsEditGet({goods_id:this.goods_id}).then(res => {
+						if (res.data.code == 1) {
+							let data = res.data.data;
+							data['detail_imgs'] = data.detail_imgs.join(',');
+							for(let k in this.info){
+								this.info[k] = data[k]
+							}
+							this.dialog = true;
 						}else{
 							this.$message.warning(res.data.msg)
 						}
 					})
 				}
-			},
-			//点击删除
-			deleteFn(goods_id){
-				console.log(goods_id)
 			},
 			//监听排序
 			sortChange(v){
@@ -699,7 +804,10 @@
 			},
 			//监听多选
 			selectionChange(selected_list){
-				console.log(selected_list)
+				let goods_ids = selected_list.map(item => {
+					return item.goods_id;
+				})
+				this.goods_id = goods_ids.join(',');
 			}
 		},
 		components:{
@@ -710,7 +818,8 @@
 			Pagination,
 			CustomTable,
 			UploadImage,
-			UploadFile
+			UploadFile,
+			CustomDialog
 		}
 	}
 </script>

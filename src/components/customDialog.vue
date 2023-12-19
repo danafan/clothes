@@ -2,15 +2,13 @@
 	<div>
 		<el-dialog custom-class="dialog_style" width="420px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="show_dialog">
 			<div class="flex ac jsb" slot="title">
-				<div class="dialog_title">{{dialog_title}}</div>
+				<div class="dialog_title">{{dialogTitle}}</div>
 				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="show_dialog = false">
 			</div>
-			<div class="carousel_container relative" v-if="show_dialog">
-				
-			</div>
-			<span slot="footer" class="dialog-footer">
-				<PageButton/>
-				<PageButton/>
+			<slot></slot>
+			<span slot="footer" class="dialog-footer flex jc">
+				<PageButton class="mr32" text="取消" type="plain" @callback="show_dialog = false"/>
+				<PageButton text="确定" @callback="$emit('callback')"/>
 			</span>
 		</el-dialog>
 	</div>
@@ -25,7 +23,7 @@
 		},
 		props:{
 			//弹窗标题
-			dialog_title:{
+			dialogTitle:{
 				type:String,
 			default:''
 			}
@@ -36,5 +34,7 @@
 	}
 </script>
 <style lang="less" scoped>
-	
+	.dialog_content{
+
+	}
 </style>
