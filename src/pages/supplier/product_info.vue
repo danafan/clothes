@@ -798,17 +798,17 @@
 					})
 				}
 			},
-			//监听排序
-			sortChange(v){
-				console.log(v)
-			},
 			//监听多选
 			selectionChange(selected_list){
 				let goods_ids = selected_list.map(item => {
 					return item.goods_id;
 				})
 				this.goods_id = goods_ids.join(',');
-			}
+			},
+			//监听排序
+			sortChange(v){
+				console.log(v)
+			},
 		},
 		components:{
 			PageRadio,

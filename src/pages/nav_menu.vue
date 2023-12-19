@@ -19,7 +19,7 @@
 						<template slot="content">
 							<div class="popover_menu_item flex ac jsb pointer pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="$store.commit('checkMenu',child)" v-for="(child,child_index) in menu.children">
 								<div class="flex ac">
-									<img class="menu_icon" :src="child.icon_active" v-if="child.active">
+									<img class="menu_icon" :src="child.icon_active" v-if="menu.active">
 									<img class="menu_icon" :src="child.icon" v-else>
 									<div class="f16 fw400" :class="{'active_color':child.active}">{{child.name}}</div>
 								</div>
