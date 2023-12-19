@@ -64,13 +64,13 @@ const store = new Vuex.Store({
 				active:false
 			}]
 		}],												//导航列表
-		active_path:'/',								//当前选中的菜单
+		active_path:sessionStorage.getItem("activePath")?JSON.parse(sessionStorage.getItem("activePath")):'/home',								//当前选中的菜单
 		tabsList:sessionStorage.getItem("tabsList")?JSON.parse(sessionStorage.getItem("tabsList")):[{
 		default:true,
 			name:'首页',
-			path:'/',
+			path:'/home',
 			hover:false,
-			active:true
+			active:false
 		}],												//当前已打开的菜单列表
 		domain:"",										//文件前缀
 	},
@@ -92,6 +92,7 @@ const store = new Vuex.Store({
 		//切换导航
 		checkMenu(state, menu_item){
 			state.active_path = menu_item.path;
+			sessionStorage.setItem("activePath",JSON.stringify(state.active_path));
 			state.menuList.map(menu => {
 				menu.children.map(child => {
 					child.active = child.path == menu_item.path;
@@ -129,6 +130,7 @@ const store = new Vuex.Store({
 		//切换标签页
 		checkTab(state, tab){
 			state.active_path = tab.path;
+			sessionStorage.setItem("activePath",JSON.stringify(state.active_path));
 			state.menuList.map((menu,index) => {
 				if(state.tabsList.length > 2){
 					menu.active = tab.parent_index == index;
@@ -154,6 +156,7 @@ const store = new Vuex.Store({
 			})
 			if(tab.active){		//删除的是当前展示的菜单
 				state.active_path = state.tabsList[index - 1].path;
+				sessionStorage.setItem("activePath",JSON.stringify(state.active_path));
 				let current_menu_index = state.tabsList[index - 1].parent_index;
 				state.menuList.map((menu,menu_index) => {
 					if(state.tabsList.length > 2){

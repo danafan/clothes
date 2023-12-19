@@ -8,24 +8,54 @@
 			<el-table-column :label="item.label" :prop="item.prop" :width="flexColumnWidth(item.prop,item.label,tableData,item.sort,item.type)" :sortable="item.sort?item.sort:false" align="center" v-for="item in titleList">
 				<template slot-scope="scope">
 					<!-- 普通图片 -->
-					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="domain + scope.row[item.prop]" fit="scale-down" v-if="item.type == 1"></el-image>
+					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="domain + scope.row[item.prop]" fit="scale-down" @click="viewImage(scope.row[item.prop],scope.row.goods_name,0)" v-if="item.type == 1"></el-image>
 					<!-- 轮播图片 -->
-					<el-carousel ref="carouselRef" arrow="never" indicator-position="none" :autoplay="false" height="110px" v-else-if="item.type == 2">
-						<el-carousel-item v-for="(img_url,index) in scope.row[item.prop]" :key="index">
-							<el-image :z-index="2006" :src="domain + img_url" fit="scale-down"></el-image>
-						</el-carousel-item>
+					<div class="table_carousel relative" v-else-if="item.type == 2">
+						<el-carousel class="el_carousel" :ref="`${tableName}_${item.prop}_${scope.$index}`" arrow="never" indicator-position="none" :autoplay="false" height="110px">
+							<el-carousel-item v-for="(img_url,index) in scope.row[item.prop]" :key="index">
+								<el-image :z-index="2006" :src="domain + img_url" @click="viewImage(scope.row[item.prop],scope.row.goods_name,index)" fit="scale-down"></el-image>
+							</el-carousel-item>
+						</el-carousel>
 						<div class="carousel_arrow_row flex ac jsb">
-							<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="prev">
-							<img class="carousel_arrow pointer" src="@/static/carousel_right_arrow.png" @click="$refs.carouselRef[1].next()">
+							<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="checkCarousel(`${tableName}_${item.prop}_${scope.$index}`,'prev','arr')">
+							<img class="carousel_arrow pointer" src="@/static/carousel_right_arrow.png" @click="checkCarousel(`${tableName}_${item.prop}_${scope.$index}`,'next','arr')">
 						</div>
-					</el-carousel>
+					</div>
 					<!-- 预览按钮 -->
-					<div class="text_style" v-else-if="item.type == 3" @click="openWindow(scope.row[item.prop])">预览</div>
+					<span class="text_style" v-else-if="item.type == 3" @click="openWindow(scope.row[item.prop])">预览</span>
 					<!-- 普通文字 -->
 					<div class="table_cell table_color f14 fw500" v-else>{{scope.row[item.prop]}}</div>
 				</template>
 			</el-table-column>
+			<!-- 操作栏 -->
+			<el-table-column label="操作" align="center" width="140" fixed="right" v-if="Setting">
+				<template slot-scope="scope">
+					<span class="text_style">编辑</span>
+					<span class="text_style" @click="$emit('deleteFn',scope.row.goods_id)">删除</span>
+					<span class="text_style">复用新建</span>
+					<span class="text_style">发起审核</span>
+					<span class="text_style">撤销</span>
+				</template>
+			</el-table-column>
 		</el-table>
+		<!-- 图片放大 -->
+		<el-dialog custom-class="dialog_style" width="468px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="view_image_dialog">
+			<div class="flex ac jsb" slot="title">
+				<div class="dialog_title">{{goods_name}}</div>
+				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="view_image_dialog = false">
+			</div>
+			<div class="carousel_container relative" v-if="view_image_dialog">
+				<el-carousel class="el_carousel" ref="dialogRef" arrow="never" indicator-position="none" :autoplay="false" :initial-index="initial_index" height="340px">
+					<el-carousel-item class="carousel_item flex ac jc" v-for="(img_url,index) in preview_src_list" :key="index">
+						<el-image class="carousel_image" :z-index="2006" :src="domain + img_url" fit="scale-down"></el-image>
+					</el-carousel-item>
+				</el-carousel>
+				<div class="carousel_arrow_row flex ac jsb" v-if="preview_src_list.length > 1">
+					<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="checkCarousel('dialogRef','prev','obj')">
+					<img class="carousel_arrow pointer" src="@/static/carousel_right_arrow.png" @click="checkCarousel('dialogRef','next','obj')">
+				</div>
+			</div>
+		</el-dialog>
 	</div>
 </template>
 <script>
@@ -35,6 +65,14 @@
 	// 3、预览按钮
 	import PageButton from '@/components/pageButton'
 	export default{
+		data(){
+			return{
+				view_image_dialog:false,				//图片放大弹窗
+				goods_name:"",							//图片放大标题（品名）
+				preview_src_list:[],					//预览的图片列表
+				initial_index:0,						//当前下标
+			}
+		},
 		props:{
 			//表格数据
 			tableData:{
@@ -50,6 +88,16 @@
 			tableHeight:{
 				type:Number,
 			default:0
+			},
+			//引用的表格名称
+			tableName:{
+				type:String,
+			default:''
+			},
+			//是否展示操作栏
+			Setting:{
+				type:Boolean,
+			default:true
 			}
 		},
 		computed:{
@@ -59,9 +107,32 @@
 			}
 		},
 		methods:{
-			prev(){
-				console.log(this.$refs.carouselRef)
-				// this.$refs.carouselRef[1].prev();
+			//切换轮播图
+			checkCarousel(ref_name,type,check_type){
+				if(type == 'prev'){
+					if(check_type == 'arr'){
+						this.$refs[ref_name][0].prev();
+					}else{
+						this.$refs[ref_name].prev();
+					}
+				}else{
+					if(check_type == 'arr'){
+						this.$refs[ref_name][0].next();
+					}else{
+						this.$refs[ref_name].next();
+					}
+				}
+			},
+			//点击放大轮播图
+			viewImage(preview_src,goods_name,initial_index){
+				this.goods_name = goods_name;
+				this.initial_index = initial_index;
+				if(preview_src.constructor === Array){
+					this.preview_src_list = preview_src;
+				}else{
+					this.preview_src_list = preview_src.split(',');
+				}
+				this.view_image_dialog = true;
 			},
 			//监听排序
 			sortChange({ column, prop, order }){
@@ -171,18 +242,6 @@
 		position: absolute;
 		width: 100%;
 	}
-	.custom_table .carousel_arrow_row{
-		position: absolute;
-		top: 50%;
-		left: 0;
-		transform: translate(0,-50%);
-		width: 100%;
-		z-index: 3;
-	}
-	.custom_table .carousel_arrow_row .carousel_arrow{
-		width: 14px;
-		height: 14px;
-	}
 	.custom_table .el-image{
 		width: 115px;
 		height: 110px;
@@ -199,5 +258,69 @@
 		font-size: 14px;
 		font-weight: 500;
 		color: #609DFF;
+		white-space: nowrap;
+	}
+	.table_carousel{
+		width: 100%;
+		height:110px;
+		.el_carousel{
+			position: absolute;
+			top:50%;
+			left:50%;
+			width:110px;
+			height:110px;
+			transform:translate(-50%,-50%);
+			z-index:1;
+			.carousel_item{
+				width: 110px;
+				height: 110px;
+				.carousel_image{
+					width: 110px;
+					height: 110px;
+				}
+			}
+		}
+		.carousel_arrow_row{
+			position: absolute;
+			top:50%;
+			left:50%;
+			width: 100%;
+			transform:translate(-50%,-50%);
+			z-index:0;
+			.carousel_arrow{
+				width: 14px;
+				height: 14px;
+			}
+		}
+	}
+	.carousel_container{
+		height:340px;
+		.el_carousel{
+			position: absolute;
+			top:50%;
+			left:50%;
+			width:340px;
+			height:340px;
+			transform:translate(-50%,-50%);
+			.carousel_item{
+				width: 340px;
+				height: 340px;
+				.carousel_image{
+					width: 340px;
+					height: 340px;
+				}
+			}
+		}
+		.carousel_arrow_row{
+			position: absolute;
+			top:50%;
+			left:50%;
+			width: 100%;
+			transform:translate(-50%,-50%);
+			.carousel_arrow{
+				width: 24px;
+				height: 24px;
+			}
+		}
 	}
 </style>

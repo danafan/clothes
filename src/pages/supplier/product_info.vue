@@ -68,7 +68,7 @@
 					<SettingButton :img="require('@/static/create_icon.png')" text="新建" @callback="dialog = true"/>
 				</div>
 			</div>
-			<CustomTable :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange"/>
+			<CustomTable tableName="productInfo" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange" @deleteFn="deleteFn"/>
 		</div>
 		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 新建/编辑 -->
@@ -228,6 +228,16 @@
 				<PageButton type="primary_big" text="确定" @callback="commitFn"/>
 			</div>
 		</el-dialog>
+		<!-- 删除 -->
+		<el-dialog custom-class="dialog_style" width="468px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="view_image_dialog">
+			<div class="flex ac jsb" slot="title">
+				<div class="dialog_title">{{goods_name}}</div>
+				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="view_image_dialog = false">
+			</div>
+			<div class="carousel_container relative" v-if="view_image_dialog">
+				
+			</div>
+		</el-dialog>
 	</div>
 </template>
 <script>
@@ -241,6 +251,7 @@
 	import CustomTable from '@/components/customTable'
 	import UploadImage from '@/components/uploadImage'
 	import UploadFile from '@/components/uploadFile'
+	import CustomDialog from '@/components/customDialog'
 	export default{
 		data(){
 			return{
@@ -310,7 +321,7 @@
 				unfold:true,							//筛选条件是否展开
 				page:1,
 				pagesize:10,
-				total:100,
+				total:0,
 				titleList:[
 				{
 					label:'系列',
@@ -417,7 +428,7 @@
 					prop:'add_time',
 				},{
 					label:'状态',
-					prop:'brand_ksbm',
+					prop:'status_name',
 				},{
 					label:'品牌款号',
 					prop:'brand_ksbm',
@@ -566,6 +577,18 @@
 					if (res.data.code == 1) {
 						let data = res.data.data;
 						this.tableData = data.data;
+						this.tableData.map(item => {
+							if(item.supplier_status == 0){
+								item['status_name'] = '待发起';
+							}else if(item.supplier_status == 1){
+								item['status_name'] = '待审核';
+							}else if(item.supplier_status == 2){
+								item['status_name'] = '审核通过';
+							}else if(item.supplier_status == 3){
+								item['status_name'] = '审核拒绝';
+							}
+						})
+						this.total = data.total
 					}else{
 						this.$message.warning(res.data.msg)
 					}
@@ -665,6 +688,10 @@
 						}
 					})
 				}
+			},
+			//点击删除
+			deleteFn(goods_id){
+				console.log(goods_id)
 			},
 			//监听排序
 			sortChange(v){

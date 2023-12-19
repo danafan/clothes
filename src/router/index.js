@@ -26,7 +26,7 @@ const router = new Router({
 		name: "导航页",
 		children: [
 		{
-			path: "/",
+			path: "/home",
 			name: "首页",
 			component: home
 		},

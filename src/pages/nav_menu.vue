@@ -83,9 +83,6 @@
 		},
 		created(){
 			this.$store.commit('initMenuStatus',this.$route.path)
-			// resource.menuList().then(res => {
-
-			// })
 		},
 		computed:{
 			//菜单列表
