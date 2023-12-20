@@ -279,7 +279,7 @@
 			uploadFn(){
 				if(this.file_url == ''){
 					this.$message.warning('请上传质检报告！');
-					return;
+					return
 				}
 				let arg = {
 					goods_id:this.goods_id,
