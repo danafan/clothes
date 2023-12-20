@@ -79,7 +79,7 @@
 	export default{
 		data(){
 			return{
-				menu_status:true,
+				menu_status:false,
 			}
 		},
 		created(){

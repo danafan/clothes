@@ -3,7 +3,7 @@
 		<div class="flex jsb mb16">
 			<PageRadio :radioList="radio_list" :activeIndex="active_index" @checkRadio="checkRadio"/>
 			<div class="flex">
-				<SettingButton :img="require('@/static/refresh_icon.png')" text="刷新"/>
+				<SettingButton :img="require('@/static/refresh_icon.png')" text="刷新" @callback="getData"/>
 				<ScreenButton :unfold="unfold" @checkStatus="unfold = !unfold"/>
 			</div>
 		</div>
@@ -11,29 +11,32 @@
 		<div v-show="unfold">
 			<el-form :inline="true">
 				<el-form-item label="时间：">
-					<el-date-picker v-model="date" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+					<el-date-picker style="width:234px" v-model="date" unlink-panels type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
 					</el-date-picker>
 				</el-form-item>
 				<el-form-item label="品牌：">
-					<el-select style="width:234px" v-model="pp_ids" multiple placeholder="请选择">
-						<el-option v-for="item in pp_list" :key="item.id" :label="item.name" :value="item.id">
+					<el-select style="width:234px" v-model="brand_ids" multiple filterable placeholder="请选择品牌">
+						<el-option v-for="item in brand_list" :key="item.brand_id" :label="item.brand_name" :value="item.brand_id">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="品类：">
-					<el-select style="width:234px" v-model="category_ids" multiple placeholder="请选择">
-						<el-option v-for="item in category_list" :key="item.id" :label="item.name" :value="item.id">
+					<el-select style="width:234px" v-model="cate_ids" clearable multiple filterable placeholder="请选择">
+						<el-option v-for="item in cate_list" :key="item.category_id" :label="item.category_name" :value="item.category_id">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="品名：">
-					<el-input style="width:234px" v-model="pm" placeholder="请输入"></el-input>
+					<el-input style="width:234px" v-model="goods_name" placeholder="请输入"></el-input>
 				</el-form-item>
 				<el-form-item label="搜索：">
 					<el-input style="width:198px" v-model="search" placeholder="款号/货号/物流信息"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<PageButton/>
+					<el-checkbox size="medium" :true-label="1" :false-label="0" v-model="not_uploaded">未上传物流信息</el-checkbox>
+				</el-form-item>
+				<el-form-item>
+					<PageButton @callback="changePage(1)"/>
 				</el-form-item>
 			</el-form>
 		</div>
@@ -42,15 +45,33 @@
 			<div class="p16 flex ac jsb" id="table_setting">
 				<div class="table_color f14 fw500">数据列表</div>
 				<div class="flex">
-					<SettingButton :img="require('@/static/send_icon.png')" text="寄出样衣"/>
+					<SettingButton :img="require('@/static/send_icon.png')" text="寄出样衣" @callback="setFn(goods_id,'sendAllDialog')"/>
 					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
 					<SettingButton :img="require('@/static/import_icon.png')" text="导入"/>
 				</div>
 			</div>
-			<CustomTable tableName="sendSample" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading"/>
-			<!-- <CustomTable :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange"/> -->
+			<CustomTable tableName="sendSample" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @sendFn="setFn($event,'sendDialog')" @cancelFn="setFn($event,'cancelDialog')"/>
 		</div>
-		<Pagination :page="page" :total="total" @changePage="changePage"/>
+		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
+		<!-- 寄出 -->
+		<custom-dialog dialogTitle="上传寄样信息" ref="sendDialog" @callback="sendGoods">
+			<el-form class="dialog_form" label-width="180">
+				<el-form-item label="品名：">
+					<div class="default_color f14 fw400">{{send_goods_name}}</div>
+				</el-form-item>
+				<el-form-item label="物流信息：">
+					<el-input style="width:240px" v-model="logistics_name"></el-input>
+				</el-form-item>
+			</el-form>
+		</custom-dialog>
+		<!-- 批量寄出 -->
+		<custom-dialog dialogTitle="上传寄样信息" ref="sendAllDialog" @callback="sendGoods">
+			<div class="default_color f14 fw400">确定寄出选中的{{goods_id.split(',').length}}件样衣吗？</div>
+		</custom-dialog>
+		<!-- 撤销 -->
+		<custom-dialog dialogTitle="撤销" ref="cancelDialog" @callback="sendGoodsCancel">
+			<div class="default_color f14 fw400">确定要撤销商品寄出吗？</div>
+		</custom-dialog>
 	</div>
 </template>
 <script>
@@ -62,52 +83,63 @@
 	import PageButton from '@/components/pageButton'
 	import Pagination from '@/components/pagination'
 	import CustomTable from '@/components/customTable'
+	import CustomDialog from '@/components/customDialog'
 	export default{
 		data(){
 			return{
-				radio_list:[{
+				radio_list:[
+				{
+					id:-1,
+					name:'全部',
+					icon:require('@/static/all_icon.png'),
+					icon_active:require('@/static/all_icon_active.png'),
+					unread:false
+				},{
+					id:0,
+					name:'未寄出',
+					icon:require('@/static/pass_icon.png'),
+					icon_active:require('@/static/pass_icon_active.png'),
+					unread:false
+				},{
 					id:1,
-					name:'未上传物流信息',
-					icon:require('@/static/uploaded_icon.png'),
-					icon_active:require('@/static/uploaded_icon_active.png'),
+					name:'待审核',
+					icon:require('@/static/await_audit.png'),
+					icon_active:require('@/static/await_audit_active.png'),
 					unread:false
 				},{
 					id:2,
-					name:'样衣审核通过',
+					name:'审核通过',
 					icon:require('@/static/pass_icon.png'),
 					icon_active:require('@/static/pass_icon_active.png'),
 					unread:false
 				},{
 					id:3,
-					name:'样衣审核拒绝',
+					name:'审核拒绝',
 					icon:require('@/static/turn_down.png'),
 					icon_active:require('@/static/turn_down_active.png'),
 					unread:true
 				},{
 					id:4,
-					name:'全部',
-					icon:require('@/static/all_icon.png'),
-					icon_active:require('@/static/all_icon_active.png'),
-					unread:false
-				}],									//筛选条件
+					name:'已撤销',
+					icon:require('@/static/cancel_icon.png'),
+					icon_active:require('@/static/cancel_icon_active.png'),
+					unread:true
+				}],					  //筛选条件
 				active_index:0,						//当前选中的下标
 				unfold:true,						//筛选条件是否展开
 				date:[],							//时间选择
-				pp_list:[{
-					name:'品牌1',
-					id:1
-				}],									//品牌列表
-				pp_ids:[],							//选中的品牌
-				category_list:[{
-					name:'分类1',
-					id:1
-				}],									//产品分类列表
-				category_ids:[],					//选中的产品分类
-				pm:"",								//品名
+				brand_list:[],						//品牌列表
+				brand_ids:[],						//选中的品牌
+				cate_list:[],				  		//产品分类列表
+				cate_ids:[],						//选中的产品分类
+				goods_name:"",						//品名
 				search:"",							//搜索内容
+				not_uploaded:0,						//未上传物流信息
 				page:1,
-				total:100,
-				titleList:[{
+				pagesize:10,
+				total:0,
+				titleList:[
+				{
 					label:'品牌',
 					prop:'brand_name',
 				},{
@@ -134,10 +166,15 @@
 				},{
 					label:'审核备注',
 					prop:'send_audit_remark',
-				}],
+				}
+				],
 				tableData:[],
 				table_height:0,
-				loading:false
+				loading:false,
+				goods_id:"",						//点击的商品
+				ref_name:"",						//弹窗名称
+				send_goods_name:"",					//寄出品名
+				logistics_name:"",					//物流信息
 			}
 		},
 		watch:{
@@ -155,6 +192,10 @@
 			window.addEventListener("resize", this.onResize());
 		},
 		created(){
+			//获取品牌列表
+			this.ajaxBrands();
+			//获取品类列表
+			this.ajaxCates();
 			//获取商品寄样列表
 			this.getData();
 		},
@@ -167,10 +208,43 @@
 					this.table_height = table_content_height - table_setting_height - 30;
 				});
 			},
+			//获取品牌列表
+			ajaxBrands(){
+				resource.ajaxBrands().then(res => {
+					if (res.data.code == 1) {
+						this.brand_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//获取品类列表
+			ajaxCates(){
+				resource.ajaxCates().then(res => {
+					if (res.data.code == 1) {
+						this.cate_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
 			//获取商品寄样列表
 			getData(){
+				let arg = {
+					start_date:this.date && this.date.length> 0?this.date[0]:"",
+					end_date:this.date && this.date.length> 0?this.date[1]:"",
+					category_id:this.cate_ids.join(','),
+					brand_id:this.brand_ids.join(','),
+					goods_name:this.goods_name,
+					search:this.search,
+					page:this.page,
+					pagesize:this.pagesize
+				}
+				if(this.active_index > 0){
+					arg['send_status'] = this.radio_list[this.active_index].id;
+				}
 				this.loading = true;
-				resource.supplierSendGoodsList().then(res => {
+				resource.supplierSendGoodsList(arg).then(res => {
 					if(res.data.code == 1){
 						this.loading = false;
 						let data = res.data.data;
@@ -188,27 +262,83 @@
 								item['send_name'] = '已撤销';
 							}
 						})
+						this.total = data.total;
 					}else{
 						this.$message.warning(res.data.msg);
+					}
+				})
+			},
+			//点击寄出/撤销
+			setFn(arg,ref_name){
+				this.ref_name = ref_name;
+				if(ref_name == 'sendDialog'){
+					this.send_goods_name = arg.goods_name;
+					this.goods_id = arg.goods_id;
+				}else{
+					if(ref_name == 'sendAllDialog' && arg == ''){
+						this.$message.warning('请至少勾选一项！');
+						return;
+					}
+					this.goods_id = arg;
+				}
+				this.$refs[this.ref_name].show_dialog = true;
+			},
+			//寄出提交
+			sendGoods(){
+				let arg = {
+					goods_id:this.goods_id,
+					logistics_name:this.send_goods_name
+				}
+				resource.supplierSendGoods(arg).then(res => {
+					if (res.data.code == 1) {
+						this.$message.success(res.data.msg);
+						this.$refs[this.ref_name].show_dialog = false;
+						//获取商品寄样列表
+						this.getData();
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//寄出撤销
+			sendGoodsCancel(){
+				let arg = {
+					goods_id:this.goods_id
+				}
+				resource.supplierSendCancel(arg).then(res => {
+					if (res.data.code == 1) {
+						this.$message.success(res.data.msg);
+						this.$refs[this.ref_name].show_dialog = false;
+						//获取商品寄样列表
+						this.getData();
+					}else{
+						this.$message.warning(res.data.msg)
 					}
 				})
 			},
 			//切换单选
 			checkRadio(index){
 				this.active_index = index;
+				//获取商品寄样列表
+				this.getData();
 			},
 			//切换页码
 			changePage(page){
-				console.log(page)
+				this.page = page;
+				//获取商品寄样列表
+				this.getData();
+			},
+			//监听多选
+			selectionChange(selected_list){
+				let goods_ids = selected_list.map(item => {
+					return item.goods_id;
+				})
+				this.goods_id = goods_ids.join(',');
 			},
 			//监听排序
 			sortChange(v){
 				console.log(v)
 			},
-			//监听多选
-			selectionChange(selected_list){
-				console.log(selected_list)
-			}
 		},
 		components:{
 			PageRadio,
@@ -216,7 +346,8 @@
 			ScreenButton,
 			PageButton,
 			Pagination,
-			CustomTable
+			CustomTable,
+			CustomDialog
 		}
 	}
 </script>

@@ -273,13 +273,13 @@
 					unread:false
 				},{
 					id:2,
-					name:'已通过',
+					name:'审核通过',
 					icon:require('@/static/pass_icon.png'),
 					icon_active:require('@/static/pass_icon_active.png'),
 					unread:false
 				},{
 					id:3,
-					name:'已拒绝',
+					name:'审核拒绝',
 					icon:require('@/static/turn_down.png'),
 					icon_active:require('@/static/turn_down_active.png'),
 					unread:true
@@ -595,7 +595,6 @@
 								item['status_name'] = '审核拒绝';
 							}
 						})
-						console.log(this.tableData)
 						this.total = data.total;
 						this.loading = false;
 					}else{
