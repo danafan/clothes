@@ -47,12 +47,15 @@
 					<SettingButton :img="require('@/static/import_icon.png')" text="导入"/>
 				</div>
 			</div>
-			<CustomTable :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange"/>
+			<CustomTable tableName="sendSample" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading"/>
+			<!-- <CustomTable :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange"/> -->
 		</div>
 		<Pagination :page="page" :total="total" @changePage="changePage"/>
 	</div>
 </template>
 <script>
+	import resource from '@/api/resource.js'
+
 	import PageRadio from '@/components/pageRadio'
 	import SettingButton from '@/components/settingButton'
 	import ScreenButton from '@/components/screenButton'
@@ -105,97 +108,36 @@
 				page:1,
 				total:100,
 				titleList:[{
-					label:'系列',
-					prop:'xl',
-					sort:true,
+					label:'品牌',
+					prop:'brand_name',
 				},{
-					label:'主图',
-					prop:'zt',
-				},{
-					label:'细节图',
-					prop:'xjt',
-				},{
-					label:'产品品类',
-					prop:'pl',
+					label:'品类',
+					prop:'category_name',
 				},{
 					label:'品名',
-					prop:'pm',
+					prop:'goods_name',
 				},{
-					label:'季节',
-					prop:'jj',
+					label:'款号',
+					prop:'style_name',
 				},{
-					label:'产品款号',
-					prop:'cpkh',
-				},{
-					label:'产品货号',
+					label:'货号',
 					prop:'cphh',
 				},{
-					label:'SPU',
-					prop:'spu',
+					label:'物流信息',
+					prop:'logistics_name',
 				},{
-					label:'SKU',
-					prop:'sku',
+					label:'上传时间',
+					prop:'send_upload_time',
 				},{
-					label:'色号',
-					prop:'sh',
+					label:'状态',
+					prop:'send_name',
 				},{
-					label:'颜色名称颜色',
-					prop:'ysmc',
+					label:'审核备注',
+					prop:'send_audit_remark',
 				}],
-				tableData:[{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				},{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				},{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				},{
-					xl:'无',
-					zt:'http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png',
-					xjt:['http://select.img.92nu.com/test/20231115100508_dingd_id_5535.png','http://select.img.92nu.com/test/20231115100511_dingd_id_1042.png','http://select.img.92nu.com/test/20231115100511_dingd_id_8702.png'],
-					pl:'羽绒服羽绒服',
-					pm:'短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服短款羽绒服',
-					jj:'冬季',
-					cpkh:'KOD9',
-					cphh:'FEDFGBFFFGDFFEDFGBFFFGDF',
-					spu:'12345678902435463761',
-					sku:'135er4y45d53te64gft3',
-					sh:'1E5ErGy45d53tE64gfE3',
-					ysmc:'米白09'
-				}],
-				table_height:0
+				tableData:[],
+				table_height:0,
+				loading:false
 			}
 		},
 		watch:{
@@ -212,6 +154,10 @@
 			this.onResize();
 			window.addEventListener("resize", this.onResize());
 		},
+		created(){
+			//获取商品寄样列表
+			this.getData();
+		},
 		methods: {
     		//设置表格高度
 			onResize() {
@@ -220,6 +166,32 @@
 					let table_setting_height = document.getElementById("table_setting").offsetHeight;
 					this.table_height = table_content_height - table_setting_height - 30;
 				});
+			},
+			//获取商品寄样列表
+			getData(){
+				this.loading = true;
+				resource.supplierSendGoodsList().then(res => {
+					if(res.data.code == 1){
+						this.loading = false;
+						let data = res.data.data;
+						this.tableData = data.data;
+						this.tableData.map(item => {
+							if(item.send_status == 0){
+								item['send_name'] = '未寄出';
+							}else if(item.send_status == 1){
+								item['send_name'] = '待审核';
+							}else if(item.send_status == 2){
+								item['send_name'] = '审核通过';
+							}else if(item.send_status == 3){
+								item['send_name'] = '审核拒绝';
+							}else if(item.send_status == 4){
+								item['send_name'] = '已撤销';
+							}
+						})
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
 			},
 			//切换单选
 			checkRadio(index){

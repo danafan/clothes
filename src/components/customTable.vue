@@ -1,6 +1,6 @@
 <template>
 	<div class="relative">
-		<el-table class="custom_table" :height="tableHeight" :data="tableData" :header-cell-style="{'background':'#E2EAFF','height':'88px','color':'#4E5969','font-size':'14px'}" :fit="false" @sort-change="sortChange" @selection-change="selectionChange" border>
+		<el-table class="custom_table" :height="tableHeight" :data="tableData" :header-cell-style="{'background':'#E2EAFF','height':'88px','color':'#4E5969','font-size':'14px'}" :fit="false" @sort-change="sortChange" @selection-change="selectionChange" v-loading="loading" border>
 			<el-table-column fixed align="center" type="selection" width="48">
 			</el-table-column>
 			<el-table-column fixed label="序号" align="center" type="index" width="60">
@@ -98,7 +98,12 @@
 			Setting:{
 				type:Boolean,
 			default:true
-			}
+			},
+			//加载状态
+			loading:{
+				type:Boolean,
+			default:false
+			},
 		},
 		computed:{
 			//文件前缀
@@ -155,9 +160,11 @@
 				if (!tableData || !tableData.length || tableData.length === 0 || tableData === undefined) {
 					return
 				}
+
 				if (!prop || !prop.length || prop.length === 0 || prop === undefined) {
 					return
 				}
+
 				// 获取该列中最长的数据(内容)
 				let index = 0
 				for (let i = 0; i < tableData.length; i++) {
@@ -170,8 +177,13 @@
 						index = i
 					}
 				}
-				columnContent = tableData[index][prop].length > label.length?tableData[index][prop]:label
-
+				
+				if(tableData[index][prop]){
+					columnContent = tableData[index][prop].length > label.length?tableData[index][prop]:label;
+				}else{
+					columnContent = label;
+				}
+				
 			    // 以下分配的单位长度可根据实际需求进行调整
 				let flexWidth = 0
 				var regPos = /^[0-9]+.?[0-9]*/; //判断是否是数字。
@@ -201,7 +213,7 @@
 					flexWidth = flexWidth + 32
 				}
 				//处理排序
-				if(tableData[index][prop].length <= label.length && sort){
+				if(tableData[index][prop] && (tableData[index][prop].length <= label.length && sort)){
 					flexWidth += 14
 				}
 				//处理图片展示

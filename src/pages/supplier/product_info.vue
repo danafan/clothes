@@ -3,7 +3,7 @@
 		<div class="flex jsb mb16">
 			<PageRadio :radioList="radio_list" :activeIndex="active_index" @checkRadio="checkRadio"/>
 			<div class="flex">
-				<SettingButton :img="require('@/static/refresh_icon.png')" text="刷新"/>
+				<SettingButton :img="require('@/static/refresh_icon.png')" text="刷新" @callback="getData"/>
 				<ScreenButton :unfold="unfold" @checkStatus="unfold = !unfold"/>
 			</div>
 		</div>
@@ -68,7 +68,7 @@
 					<SettingButton :img="require('@/static/create_icon.png')" text="新建" @callback="addEditFn('','add')"/>
 				</div>
 			</div>
-			<CustomTable tableName="productInfo" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" @sortChange="sortChange" @selectionChange="selectionChange" @copyFn="addEditFn($event,'copy')" @editFn="addEditFn($event,'edit')" @deleteFn="setFn($event,'deleteDialog')" @auditFn="setFn($event,'auditDialog')" @cancelFn="setFn($event,'cancelDialog')"/>
+			<CustomTable tableName="productInfo" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @sortChange="sortChange" @selectionChange="selectionChange" @copyFn="addEditFn($event,'copy')" @editFn="addEditFn($event,'edit')" @deleteFn="setFn($event,'deleteDialog')" @auditFn="setFn($event,'auditDialog')" @cancelFn="setFn($event,'cancelDialog')"/>
 		</div>
 		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 新建/编辑 -->
@@ -324,6 +324,7 @@
 				page:1,
 				pagesize:10,
 				total:0,
+				loading:false,
 				titleList:[
 				{
 					label:'系列',
@@ -578,6 +579,7 @@
 				if(this.active_index > 0){
 					arg['supplier_status'] = this.radio_list[this.active_index].id;
 				}
+				this.loading = true;
 				resource.supplierGoodsList(arg).then(res => {
 					if (res.data.code == 1) {
 						let data = res.data.data;
@@ -593,7 +595,9 @@
 								item['status_name'] = '审核拒绝';
 							}
 						})
-						this.total = data.total
+						console.log(this.tableData)
+						this.total = data.total;
+						this.loading = false;
 					}else{
 						this.$message.warning(res.data.msg)
 					}

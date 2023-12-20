@@ -26,7 +26,8 @@
 								<div class="dot"></div>
 							</div>
 						</template>
-						<img class="menu_icon_big" :src="menu.icon_big">
+						<img class="menu_icon_big" :src="menu.icon_big_active" v-if="menu.active">
+						<img class="menu_icon_big" :src="menu.icon_big" v-else>
 					</a-popover>
 				</div>
 			</div>
