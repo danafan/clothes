@@ -97,8 +97,8 @@
 				},{
 					id:0,
 					name:'未寄出',
-					icon:require('@/static/pass_icon.png'),
-					icon_active:require('@/static/pass_icon_active.png'),
+					icon:require('@/static/not_send.png'),
+					icon_active:require('@/static/not_send_active.png'),
 					unread:false
 				},{
 					id:1,

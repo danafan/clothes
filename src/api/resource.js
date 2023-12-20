@@ -18,6 +18,9 @@ let path = {
 	supplierSendGoodsList:'api/supplier_goods/send_goods_list',		//商品寄样列表
 	supplierSendGoods:'api/supplier_goods/add_logistics',			//商品寄出
 	supplierSendCancel:'api/supplier_goods/revoke_logistics',		//寄出撤销
+	supplierQualityInspectionList:'api/supplier_goods/quality_inspection_list',	//质检报告列表
+	supplierQualityInspectionUpload:'api/supplier_goods/upload_zz_file',		//上传质检文件
+	supplierQualityInspectionCancel:'api/supplier_goods/revoke_zz_file',		//撤销质检文件
 }					
 export default{
 	//获取用户信息
@@ -91,6 +94,18 @@ export default{
 	//寄出撤销
 	supplierSendCancel(params){
 		return http.post(path.supplierSendCancel, params)
+	},
+	//质检报告列表
+	supplierQualityInspectionList(params){
+		return http.get(path.supplierQualityInspectionList, params)
+	},
+	//上传质检文件
+	supplierQualityInspectionUpload(params){
+		return http.post(path.supplierQualityInspectionUpload, params)
+	},
+	//撤销质检文件
+	supplierQualityInspectionCancel(params){
+		return http.post(path.supplierQualityInspectionCancel, params)
 	},
 }
 

@@ -1,7 +1,7 @@
 <template>
 	<div class="relative">
 		<el-table class="custom_table" :height="tableHeight" :data="tableData" :header-cell-style="{'background':'#E2EAFF','height':'88px','color':'#4E5969','font-size':'14px'}" :fit="false" @sort-change="sortChange" @selection-change="selectionChange" v-loading="loading" border>
-			<el-table-column fixed align="center" type="selection" width="48">
+			<el-table-column fixed align="center" type="selection" width="48" v-if="selection">
 			</el-table-column>
 			<el-table-column fixed label="序号" align="center" type="index" width="60">
 			</el-table-column>
@@ -35,7 +35,8 @@
 					<span class="text_style" @click="$emit('copyFn',scope.row.goods_id)" v-if="tableName == 'productInfo'">复用新建</span>
 					<span class="text_style" @click="$emit('auditFn',scope.row.goods_id)" v-if="tableName == 'productInfo' && (scope.row.supplier_status == 0 || scope.row.supplier_status == 3)">发起审核</span>
 					<span class="text_style" @click="$emit('sendFn',scope.row)" v-if="tableName == 'sendSample' && (scope.row.send_status == 0 || scope.row.send_status == 3 || scope.row.send_status == 4)">寄出</span>
-					<span class="text_style" @click="$emit('cancelFn',scope.row.goods_id)" v-if="(tableName == 'productInfo' && scope.row.supplier_status == 1) || (tableName == 'sendSample' && scope.row.send_status == 1)">撤销</span>
+					<span class="text_style" @click="$emit('uploadFn',scope.row)" v-if="tableName == 'qualityInspection' && (scope.row.quality_inspection_status == 0 || scope.row.quality_inspection_status == 3 || scope.row.quality_inspection_status == 4)">上传</span>
+					<span class="text_style" @click="$emit('cancelFn',scope.row.goods_id)" v-if="(tableName == 'productInfo' && scope.row.supplier_status == 1) || (tableName == 'sendSample' && scope.row.send_status == 1) || (tableName == 'qualityInspection' && scope.row.quality_inspection_status == 1)">撤销</span>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -75,6 +76,11 @@
 			}
 		},
 		props:{
+			//是否展示多选
+			selection:{
+				type:Boolean,
+			default:true
+			},
 			//表格数据
 			tableData:{
 				type:Array,
