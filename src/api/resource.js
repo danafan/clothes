@@ -21,6 +21,11 @@ let path = {
 	supplierQualityInspectionList:'api/supplier_goods/quality_inspection_list',	//质检报告列表
 	supplierQualityInspectionUpload:'api/supplier_goods/upload_zz_file',		//上传质检文件
 	supplierQualityInspectionCancel:'api/supplier_goods/revoke_zz_file',		//撤销质检文件
+	//品牌商
+	brandGoodsList:'api/brand_goods/list',				//商品资料审核列表
+	addBrandKsbm:'api/brand_goods/add_brand_ksbm',		//上传单个商品品牌款号
+	brandGoodsAudit:'api/brand_goods/check',			//品牌商审核
+	importBrandKsbm:'api/brand_goods/import_brand_ksbm',//批量导入品牌款号
 }					
 export default{
 	//获取用户信息
@@ -106,6 +111,22 @@ export default{
 	//撤销质检文件
 	supplierQualityInspectionCancel(params){
 		return http.post(path.supplierQualityInspectionCancel, params)
+	},
+	//商品资料审核列表
+	brandGoodsList(params){
+		return http.get(path.brandGoodsList, params)
+	},
+	//上传单个商品品牌款号
+	addBrandKsbm(params){
+		return http.post(path.addBrandKsbm, params)
+	},
+	//品牌商审核
+	brandGoodsAudit(params){
+		return http.post(path.brandGoodsAudit, params)
+	},
+	//批量导入品牌款号
+	importBrandKsbm(params){
+		return http.post(path.importBrandKsbm, params)
 	},
 }
 

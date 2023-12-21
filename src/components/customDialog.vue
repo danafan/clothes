@@ -7,8 +7,8 @@
 			</div>
 			<slot></slot>
 			<span slot="footer" class="dialog-footer flex jc">
-				<PageButton class="mr32" text="取消" type="plain" @callback="show_dialog = false"/>
-				<PageButton text="确定" @callback="$emit('callback')"/>
+				<PageButton text="取消" type="plain" @callback="show_dialog = false"/>
+				<PageButton class="ml32" text="确定" @callback="$emit('callback')" v-if="showConfirm"/>
 			</span>
 		</el-dialog>
 	</div>
@@ -26,6 +26,11 @@
 			dialogTitle:{
 				type:String,
 			default:''
+			},
+			//是否展示确认按钮
+			showConfirm:{
+				type:Boolean,
+			default:true
 			}
 		},
 		components:{

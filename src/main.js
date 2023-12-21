@@ -16,6 +16,8 @@ import store from '@/store'
 import '@/fonts/font.css'
 import router from '@/router'
 
+Vue.prototype.downLoadUrl = `${location.origin}/template`;    //下载模版前缀
+
 new Vue({
   render: h => h(App),
   router,
