@@ -149,6 +149,7 @@
 				},{
 					label:'质检报告',
 					prop:'quality_inspection_file_url',
+					type:3,
 				},{
 					label:'上传时间',
 					prop:'quality_inspection_upload_time',

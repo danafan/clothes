@@ -17,7 +17,7 @@
 				<div class="menu_item flex ac jc pointer relative" v-for="(menu,index) in menuList">
 					<a-popover overlayClassName="a_popover" placement="rightTop" trigger="hover">
 						<template slot="content">
-							<div class="popover_menu_item flex ac jsb pointer pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="$store.commit('checkMenu',child)" v-for="(child,child_index) in menu.children">
+							<div class="popover_menu_item flex ac jsb pointer pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="checkMenu(child,index)" v-for="(child,child_index) in menu.children">
 								<div class="flex ac">
 									<img class="menu_icon" :src="child.icon_active" v-if="menu.active">
 									<img class="menu_icon" :src="child.icon" v-else>

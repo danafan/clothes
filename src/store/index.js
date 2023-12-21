@@ -93,7 +93,8 @@ const store = new Vuex.Store({
 		checkMenu(state, menu_item){
 			state.active_path = menu_item.path;
 			sessionStorage.setItem("activePath",JSON.stringify(state.active_path));
-			state.menuList.map(menu => {
+			state.menuList.map((menu,index) => {
+				menu.active = menu_item.parent_index == index;
 				menu.children.map(child => {
 					child.active = child.path == menu_item.path;
 				})
@@ -132,9 +133,7 @@ const store = new Vuex.Store({
 			state.active_path = tab.path;
 			sessionStorage.setItem("activePath",JSON.stringify(state.active_path));
 			state.menuList.map((menu,index) => {
-				if(state.tabsList.length > 2){
-					menu.active = tab.parent_index == index;
-				}
+				menu.active = tab.parent_index == index;
 				menu.children.map(child => {
 					child.active = child.path == tab.path;
 				})
@@ -159,9 +158,7 @@ const store = new Vuex.Store({
 				sessionStorage.setItem("activePath",JSON.stringify(state.active_path));
 				let current_menu_index = state.tabsList[index - 1].parent_index;
 				state.menuList.map((menu,menu_index) => {
-					if(state.tabsList.length > 2){
-						menu.active = current_menu_index == menu_index;
-					}
+					menu.active = current_menu_index == menu_index;
 					menu.children.map(child => {
 						child.active = child.path == state.active_path;
 					})
