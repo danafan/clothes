@@ -56,12 +56,15 @@
 				<div class="flex">
 					<SettingButton :img="require('@/static/setting_upload.png')" text="上传品牌款号" @callback="$refs.uploadBrandKhDialog.show_dialog = true"/>
 					<SettingButton :img="require('@/static/send_audit.png')" text="批量审核" @callback="setFn(goods_id,'auditAllDialog')"/>
-					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
-					<SettingButton :img="require('@/static/setting_list_icon.png')" text="列表视图"/>
-					<SettingButton :img="require('@/static/setting_card_icon.png')" text="卡片视图"/>
+					<SettingButton :img="require('@/static/export_icon.png')" text="导出" @callback="$refs.exportDialog.show_dialog = true"/>
+					<SettingButton :img="require('@/static/setting_list_icon.png')" text="列表视图" v-if="card_view" @callback="card_view = false"/>
+					<SettingButton :img="require('@/static/setting_card_icon.png')" text="卡片视图" v-else @callback="card_view = true"/>
 				</div>
 			</div>
-			<CustomTable tableName="productAudit" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @auditFn="setFn($event,'auditDialog')" @uploadFn="setFn($event,'uploadBrandKhDialog')"/>
+			<div class="flex flex-warp pl16 pr16 scrolly" :style="{height:`${table_height}px`}" v-if="card_view">
+				<GoodsCardItem v-for="item in 30"/>
+			</div>
+			<CustomTable tableName="productAudit" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @auditFn="setFn($event,'auditDialog')" @uploadFn="setFn($event,'uploadBrandKhDialog')" v-else/>
 		</div>
 		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 上传品牌款号 -->
@@ -116,6 +119,10 @@
 				</el-form-item>
 			</el-form>
 		</custom-dialog>
+		<!-- 导出 -->
+		<custom-dialog dialogTitle="导出" ref="exportDialog" @callback="exportFn">
+			<div class="default_color f14 fw400">确定导出吗？</div>
+		</custom-dialog>
 	</div>
 </template>
 <script>
@@ -128,6 +135,7 @@
 	import Pagination from '@/components/pagination'
 	import CustomTable from '@/components/customTable'
 	import CustomDialog from '@/components/customDialog'
+	import GoodsCardItem from '@/components/goodsCardItem'
 	export default{
 		data(){
 			return{
@@ -158,7 +166,7 @@
 					unread:false
 				}],					  				//筛选条件
 				active_index:0,						//当前选中的下标
-				unfold:true,						//筛选条件是否展开
+				unfold:false,						//筛选条件是否展开
 				date:[],							//时间选择
 				cate_list:[],				  		//产品分类列表
 				cate_ids:[],						//选中的产品分类
@@ -303,6 +311,7 @@
 				tableData:[],
 				table_height:0,
 				loading:false,
+				card_view:true,					//是否卡片展示
 				goods_id:"",						//当前点击的商品ID
 				ref_name:"",						//弹窗名称
 				upload_goods_name:"",				//上传品牌款号品名
@@ -495,6 +504,37 @@
 					}
 				})
 			},
+			//导出
+			exportFn(){
+				let arg = {
+					start_date:this.date && this.date.length> 0?this.date[0]:"",
+					end_date:this.date && this.date.length> 0?this.date[1]:"",
+					category_id:this.cate_ids.join(','),
+					goods_name:this.goods_name,
+					search:this.search,
+					price_type:this.price_type,
+					start_price:this.start_price,
+					end_price:this.end_price
+				}
+				if(this.active_index > 0){
+					arg['brand_status'] = this.radio_list[this.active_index].id;
+				}
+				if(this.supplier_status){
+					arg['supplier_status'] = this.supplier_status;
+				}
+				if(this.send_status){
+					arg['send_status'] = this.send_status;
+				}
+				if(this.quality_inspection_status){
+					arg['quality_inspection_status'] = this.quality_inspection_status;
+				}
+				let arg_arr = [];
+				for(let k in arg){
+					arg_arr.push(`${k}=${arg[k]}`)
+				}
+				let export_url = `${location.origin}/api/brand_goods/export?${arg_arr.join('&')}`;
+				console.log(export_url)
+			},
 			//监听排序
 			sortChange(v){
 				console.log(v)
@@ -507,7 +547,8 @@
 			PageButton,
 			Pagination,
 			CustomTable,
-			CustomDialog
+			CustomDialog,
+			GoodsCardItem
 		}
 	}
 </script>
