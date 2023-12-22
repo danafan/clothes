@@ -1,6 +1,6 @@
 <template>
 	<div class="relative">
-		<el-table class="custom_table" :height="tableHeight" :data="tableData" :header-cell-style="{'background':'#E2EAFF','height':'88px','color':'#4E5969','font-size':'14px'}" :fit="false" @sort-change="sortChange" @selection-change="selectionChange" v-loading="loading" border>
+		<el-table ref="customTable" class="custom_table" :height="tableHeight" :data="tableData" :header-cell-style="{'background':'#E2EAFF','height':'88px','color':'#4E5969','font-size':'14px'}" :fit="false" @sort-change="sortChange" @selection-change="selectionChange" v-loading="loading" border>
 			<el-table-column fixed align="center" type="selection" width="48" v-if="selection">
 			</el-table-column>
 			<el-table-column fixed label="序号" align="center" type="index" width="60">
@@ -113,6 +113,15 @@
 				type:Boolean,
 			default:false
 			},
+		},
+		created(){
+			if(this.tableName == 'productAudit'){	//商品资料审核初始化勾选
+				this.$nextTick(() => {
+					this.tableData.map(item => {
+						this.$refs.customTable.toggleRowSelection(item,item.selected);
+					})
+				})
+			}
 		},
 		computed:{
 			//文件前缀

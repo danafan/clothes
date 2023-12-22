@@ -61,8 +61,8 @@
 					<SettingButton :img="require('@/static/setting_card_icon.png')" text="卡片视图" v-else @callback="card_view = true"/>
 				</div>
 			</div>
-			<div class="flex flex-warp pl16 pr16 scrolly" :style="{height:`${table_height}px`}" v-if="card_view">
-				<GoodsCardItem v-for="item in 30"/>
+			<div class="flex flex-warp pl16 scrolly" :style="{height:`${table_height}px`}" v-if="card_view">
+				<GoodsCardItem :goodsItem="item" :currentIndex="index" v-for="(item,index) in tableData" @changeSelect="selectionCardChange" @checkStatus="checkStatus"/>
 			</div>
 			<CustomTable tableName="productAudit" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @auditFn="setFn($event,'auditDialog')" @uploadFn="setFn($event,'uploadBrandKhDialog')" v-else/>
 		</div>
@@ -164,7 +164,7 @@
 					icon:require('@/static/turn_down.png'),
 					icon_active:require('@/static/turn_down_active.png'),
 					unread:false
-				}],					  				//筛选条件
+				}],					  //筛选条件
 				active_index:0,						//当前选中的下标
 				unfold:false,						//筛选条件是否展开
 				date:[],							//时间选择
@@ -186,10 +186,10 @@
 					id:4,
 					name:'大促价'
 				}
-				],				  	  //价格类型列表
-				price_type:1,							//选中的价格类型
-				start_price:"",							//最低价
-				end_price:"",							//最高价
+				],				  //价格类型列表
+				price_type:1,					    //选中的价格类型
+				start_price:"",						//最低价
+				end_price:"",						//最高价
 				supplier_status:0,					//资料通过
 				send_status:0,						//寄样通过
 				quality_inspection_status:0,		//质检通过
@@ -311,7 +311,7 @@
 				tableData:[],
 				table_height:0,
 				loading:false,
-				card_view:true,					//是否卡片展示
+				card_view:false,					//是否卡片展示
 				goods_id:"",						//当前点击的商品ID
 				ref_name:"",						//弹窗名称
 				upload_goods_name:"",				//上传品牌款号品名
@@ -324,10 +324,26 @@
 			}
 		},
 		watch:{
+			//展开/收起筛选条件
 			unfold:function(n,o){
 				//设置表格高度
 				this.onResize();
-			}
+			},
+			//展示卡片时初始化勾选状态
+			card_view:function(n,o){
+				if(n){
+					let goods_ids = this.goods_id.split(',');
+					let tableData = JSON.parse(JSON.stringify(this.tableData));
+					tableData.map((item,index) => {
+						if(goods_ids.indexOf(item.goods_id.toString()) > -1){
+							item['selected'] = true;
+						}else{
+							item['selected'] = false;
+						}
+						this.$set(this.tableData,index,item);
+					})
+				}
+			},
 		},
 		destroyed() {
 			window.removeEventListener("resize", () => {});
@@ -402,6 +418,8 @@
 							}else if(item.brand_status == 2){
 								item['status_name'] = '审核拒绝';
 							}
+							item['selected'] = false;
+							item['is_up'] = false;
 						})
 						this.total = data.total;
 					}else{
@@ -421,12 +439,32 @@
 				//获取商品寄样列表
 				this.getData();
 			},
-			//监听多选
+			//列表监听多选
 			selectionChange(selected_list){
 				let goods_ids = selected_list.map(item => {
 					return item.goods_id;
 				})
 				this.goods_id = goods_ids.join(',');
+			},
+			//卡片监听多选
+			selectionCardChange(v){
+				let tableData = JSON.parse(JSON.stringify(this.tableData));
+				let current_item = tableData[v.index];
+				current_item['selected'] = v.bool;
+				this.$set(this.tableData,v.index,current_item);
+				let goods_arr = tableData.filter(item => {
+					return item.selected;
+				})
+				let goods_ids = goods_arr.map(item => {
+					return item.goods_id;
+				})
+				this.goods_id = goods_ids.join(',');
+			},
+			//卡片监听展开收起
+			checkStatus(){
+				this.tableData.map(item => {
+					item['is_up'] = !item['is_up'];
+				})
 			},
 			//点击审核/上传品牌款号
 			setFn(arg,ref_name){
@@ -471,7 +509,7 @@
 			downTemplate(){
 				window.open(`${this.downLoadUrl}/品牌款号导入模板.xlsx`);
 			},
-			// 批量上传品牌款号提交
+			//批量上传品牌款号提交
 			importFile(file){
 				resource.importBrandKsbm({file:file}).then(res => {
 					if (res.data.code == 1) {

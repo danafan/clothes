@@ -1,7 +1,8 @@
 <template>
 	<div class="goods_item_container">
-		<div class="main_image mb16 border">
-			<img class="container" :src="img">
+		<div class="main_image_body mb16">
+			<img class="container main_image" :src="img">
+			<el-checkbox class="select_style" @change="changeSelect" size="medium" v-model="goodsItem.selected"></el-checkbox>
 		</div>
 		<div class="pl16 pr16 pb16">
 			<div class="flex ac jsb mb16">
@@ -16,7 +17,7 @@
 			</div>
 			<div class="table_color f16 fw500 table_header_text">老国标90含量连帽长款羽绒服老国标90含量连帽长款羽绒服</div>
 			<div class="line"></div>
-			<div class="hidden_content" v-if="!hidden">
+			<div class="hidden_content" v-if="goodsItem.is_up">
 				<div class="flex ac jsb mb16">
 					<div class="flex ac">
 						<div class="label">款号：</div>
@@ -125,17 +126,21 @@
 				<div class="line"></div>
 			</div>
 			<div class="flex ac mb16">
-				<span class="text_style mr16">工艺资料包</span>
-				<span class="text_style">线性图稿</span>
+				<span class="text_style mr16" @click="openWindow(goodsItem.technology_url)">工艺资料包</span>
+				<span class="text_style" @click="openWindow(goodsItem.linear_draft_url)">线性图稿</span>
 			</div>
-			<div class="flex jc">
+			<div class="flex jc" v-if="goodsItem.brand_status == 1 && goodsItem.brand_ksbm == ''">
 				<div class="button_style scpph">上传品牌款号</div>
+			</div>
+			<div class="flex jc" v-if="goodsItem.brand_status == 0">
+				<div class="button_style sh">审核</div>
 			</div>
 			<div class="line"></div>
 			<div class="flex fc ac">
-				<div class="flex fc ac pointer" @click="checkStatus">
-					<div class="text_style mb8">{{hidden?'展开':'收起'}}</div>
-					<img class="status_icon" src="@/static/create_icon.png">
+				<div class="flex fc ac pointer" @click="$emit('checkStatus')">
+					<div class="text_style mb8">{{!goodsItem.is_up?'展开':'收起'}}</div>
+					<img class="status_icon" src="@/static/goods_item_up.png" v-if="goodsItem.is_up">
+					<img class="status_icon" src="@/static/goods_item_down.png" v-else>
 				</div>
 			</div>
 		</div>
@@ -145,14 +150,39 @@
 	export default{
 		data(){
 			return{
-				img:'https://p.qqan.com/up/2023-12/17030525349866759.jpg',
-				hidden:false
+				img:'https://p.qqan.com/up/2023-12/17030525349866759.jpg'
+			}
+		},
+		props:{
+			//单个商品
+			goodsItem:{
+				type:Object,
+			default:{}
+			},
+			//当前下标
+			currentIndex:{
+				type:Number,
+			default:0
+			}
+		},
+		computed:{
+			//文件前缀
+			domain(){
+				return this.$store.state.domain;
 			}
 		},
 		methods:{
-			//切换展开收起
-			checkStatus(){
-				this.hidden = !this.hidden;
+			//切换勾选
+			changeSelect(v){
+				let arg = {
+					index:this.currentIndex,
+					bool:v
+				}
+				this.$emit('changeSelect',arg)
+			},
+			//打开线性图稿/工艺资料包
+			openWindow(url){
+				window.open(this.domain + url)
 			}
 		}
 	}
@@ -164,10 +194,19 @@
 		border: 1px solid #E6EDFF;
 		width: 288px;
 		border-radius: 16px;
-		.main_image{
+		.main_image_body{
+			border-radius: 16px 16px 0 0;
 			position: relative;
-			width: 215px;
-			height: 215px;
+			width: 288px;
+			height: 288px;
+			.main_image{
+				border-radius: 16px 16px 0 0;
+			}
+			.select_style{
+				position: absolute;
+				top: 4px;
+				left: 8px;
+			}
 		}
 		.label{
 			color: #858B9E;
@@ -208,6 +247,9 @@
 		}
 		.scpph{
 			width: 116px;
+		}
+		.sh{
+			width: 64px;
 		}
 		.status_icon{
 			width: 13px;
