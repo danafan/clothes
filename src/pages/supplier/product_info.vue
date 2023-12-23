@@ -11,7 +11,7 @@
 		<div v-show="unfold">
 			<el-form :inline="true">
 				<el-form-item label="时间：">
-					<el-date-picker style="width:234px" v-model="date" unlink-panels type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+					<el-date-picker v-model="date" unlink-panels type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
 					</el-date-picker>
 				</el-form-item>
 				<el-form-item label="系列：">
@@ -62,7 +62,7 @@
 				<div class="table_color f14 fw500">数据列表</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/jian_icon.png')" text="产品检验项目表"/>
-					<SettingButton :img="require('@/static/send_audit.png')" text="发起审核" @callback="setFn(goods_id)"/>
+					<SettingButton :img="require('@/static/send_audit.png')" text="发起审核" @callback="setFn(goods_id,'auditDialog')"/>
 					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
 					<SettingButton :img="require('@/static/import_icon.png')" text="导入"/>
 					<SettingButton :img="require('@/static/create_icon.png')" text="新建" @callback="addEditFn('','add')"/>

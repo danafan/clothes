@@ -8,12 +8,12 @@
 			<el-table-column :label="item.label" :prop="item.prop" :width="flexColumnWidth(item.prop,item.label,tableData,item.sort,item.type)" :sortable="item.sort?item.sort:false" align="center" v-for="item in titleList">
 				<template slot-scope="scope">
 					<!-- 普通图片 -->
-					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="domain + scope.row[item.prop]" fit="scale-down" @click="viewImage(scope.row[item.prop],scope.row.goods_name,0)" v-if="item.type == 1"></el-image>
+					<el-image class="relative" style="top: 3px;" :z-index="2006" :src="domain + scope.row[item.prop]" fit="scale-down" @click="viewImage('only',scope.row[item.prop],scope.row.goods_name)" v-if="item.type == 1"></el-image>
 					<!-- 轮播图片 -->
 					<div class="table_carousel relative" v-else-if="item.type == 2">
 						<el-carousel class="el_carousel" :ref="`${tableName}_${item.prop}_${scope.$index}`" arrow="never" indicator-position="none" :autoplay="false" height="110px">
 							<el-carousel-item v-for="(img_url,index) in scope.row[item.prop]" :key="index">
-								<el-image :z-index="2006" :src="domain + img_url" @click="viewImage(scope.row[item.prop],scope.row.goods_name,index)" fit="scale-down"></el-image>
+								<el-image :z-index="2006" :src="domain + img_url" @click="viewImage('arr',scope.row[item.prop],scope.row.goods_name,index)" fit="scale-down"></el-image>
 							</el-carousel-item>
 						</el-carousel>
 						<div class="carousel_arrow_row flex ac jsb">
@@ -42,24 +42,8 @@
 				</template>
 			</el-table-column>
 		</el-table>
-		<!-- 图片放大 -->
-		<el-dialog custom-class="dialog_style" width="468px" :show-close="false" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="view_image_dialog">
-			<div class="flex ac jsb" slot="title">
-				<div class="dialog_title">{{goods_name}}</div>
-				<img class="close_dialog pointer" src="@/static/close_dialog.png" @click="view_image_dialog = false">
-			</div>
-			<div class="carousel_container relative" v-if="view_image_dialog">
-				<el-carousel class="el_carousel" ref="dialogRef" arrow="never" indicator-position="none" :autoplay="false" :initial-index="initial_index" height="340px">
-					<el-carousel-item class="carousel_item flex ac jc" v-for="(img_url,index) in preview_src_list" :key="index">
-						<el-image class="carousel_image" :z-index="2006" :src="domain + img_url" fit="scale-down"></el-image>
-					</el-carousel-item>
-				</el-carousel>
-				<div class="carousel_arrow_row flex ac jsb" v-if="preview_src_list.length > 1">
-					<img class="carousel_arrow pointer" src="@/static/carousel_left_arrow.png" @click="checkCarousel('dialogRef','prev','obj')">
-					<img class="carousel_arrow pointer" src="@/static/carousel_right_arrow.png" @click="checkCarousel('dialogRef','next','obj')">
-				</div>
-			</div>
-		</el-dialog>
+		<!-- 图片预览 -->
+		<PreviewImage ref="previewImagesDialog" :previewImages="preview_images" :dialogTitle="dialog_title" :initialIndex="initial_index"/>
 	</div>
 </template>
 <script>
@@ -68,12 +52,13 @@
 	// 2、轮播图
 	// 3、预览按钮
 	import PageButton from '@/components/pageButton'
+	import PreviewImage from '@/components/previewImage'
 	export default{
 		data(){
 			return{
 				view_image_dialog:false,				//图片放大弹窗
-				goods_name:"",							//图片放大标题（品名）
-				preview_src_list:[],					//预览的图片列表
+				dialog_title:"",							//图片放大标题（品名）
+				preview_images:[],					//预览的图片列表
 				initial_index:0,						//当前下标
 			}
 		},
@@ -134,28 +119,29 @@
 			checkCarousel(ref_name,type,check_type){
 				if(type == 'prev'){
 					if(check_type == 'arr'){
-						this.$refs[ref_name][0].prev();
+						this.$refs[ref_name][this.tableData.length > 1?0:2].prev();
 					}else{
 						this.$refs[ref_name].prev();
 					}
 				}else{
 					if(check_type == 'arr'){
-						this.$refs[ref_name][0].next();
+						this.$refs[ref_name][this.tableData.length > 1?0:2].next();
 					}else{
 						this.$refs[ref_name].next();
 					}
 				}
 			},
-			//点击放大轮播图
-			viewImage(preview_src,goods_name,initial_index){
-				this.goods_name = goods_name;
-				this.initial_index = initial_index;
-				if(preview_src.constructor === Array){
-					this.preview_src_list = preview_src;
+			//点击图片预览
+			viewImage(type,preview_src,goods_name,initial_index){
+				this.dialog_title = goods_name;
+				if(type == 'arr'){
+					this.initial_index = initial_index;
+					this.preview_images = preview_src;
 				}else{
-					this.preview_src_list = preview_src.split(',');
+					this.initial_index = 0;
+					this.preview_images = [preview_src];
 				}
-				this.view_image_dialog = true;
+				this.$refs.previewImagesDialog.show_dialog = true;
 			},
 			//监听排序
 			sortChange({ column, prop, order }){
@@ -255,7 +241,8 @@
 
 		},
 		components:{
-			PageButton
+			PageButton,
+			PreviewImage
 		}
 	}
 </script>
@@ -320,36 +307,6 @@
 			.carousel_arrow{
 				width: 14px;
 				height: 14px;
-			}
-		}
-	}
-	.carousel_container{
-		height:340px;
-		.el_carousel{
-			position: absolute;
-			top:50%;
-			left:50%;
-			width:340px;
-			height:340px;
-			transform:translate(-50%,-50%);
-			.carousel_item{
-				width: 340px;
-				height: 340px;
-				.carousel_image{
-					width: 340px;
-					height: 340px;
-				}
-			}
-		}
-		.carousel_arrow_row{
-			position: absolute;
-			top:50%;
-			left:50%;
-			width: 100%;
-			transform:translate(-50%,-50%);
-			.carousel_arrow{
-				width: 24px;
-				height: 24px;
 			}
 		}
 	}

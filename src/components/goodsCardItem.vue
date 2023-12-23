@@ -1,7 +1,7 @@
 <template>
 	<div class="goods_item_container">
 		<div class="main_image_body mb16">
-			<img class="container main_image" :src="img">
+			<img class="container main_image pointer" :src="domain + goodsItem.main_img" @click="viewImage('only')">
 			<el-checkbox class="select_style" @change="changeSelect" size="medium" v-model="goodsItem.selected"></el-checkbox>
 		</div>
 		<div class="pl16 pr16 pb16">
@@ -101,6 +101,22 @@
 					<div class="value">2023-10-23</div>
 				</div>
 				<div class="line"></div>
+				<div class="flex ac">
+					<div class="label">细节图：</div>
+					<div class="flex-1 flex ac jsb">
+						<img class="detail_arrow pointer" src="@/static/carousel_left_arrow.png" @click="checkCarousel('prev')">
+						<el-carousel class="carousel_box" :autoplay="false" indicator-position="none" arrow="never" ref="detailCarousel" height="48px" @change="changeIndex">
+							<el-carousel-item v-for="(img_arr,index) in goodsItem.preview_detail_imgs">
+								<div class="flex ac jsb">
+									<el-image class="carousel_item_img pointer" :src="domain + img_url" fit="scale-down" v-for="(img_url,i) in img_arr" @click="viewImage('arr',i)"></el-image>
+									<div class="carousel_item_img" v-for="box in (img_arr.length==3?0:3-img_arr.length)"></div>
+								</div>
+							</el-carousel-item>
+						</el-carousel>
+						<img class="detail_arrow pointer" src="@/static/carousel_right_arrow.png" @click="checkCarousel('next')">
+					</div>
+				</div>
+				<div class="line"></div>
 				<div class="flex ac jsb mb16">
 					<div class="flex ac">
 						<div class="label">规划色：</div>
@@ -144,13 +160,19 @@
 				</div>
 			</div>
 		</div>
+		<!-- 图片预览 -->
+		<PreviewImage ref="previewImagesDialog" :previewImages="preview_images" :dialogTitle="dialog_title" :initialIndex="initial_index"/>
 	</div>
 </template>
 <script>
+	import PreviewImage from '@/components/previewImage'
 	export default{
 		data(){
 			return{
-				img:'https://p.qqan.com/up/2023-12/17030525349866759.jpg'
+				current_index:0,			//细节图当前下标
+				initial_index:0,			//预览图下标
+				dialog_title:"",			//预览弹窗的品名
+				preview_images:[],			//预览图片列表
 			}
 		},
 		props:{
@@ -159,7 +181,7 @@
 				type:Object,
 			default:{}
 			},
-			//当前下标
+			//当前商品下标
 			currentIndex:{
 				type:Number,
 			default:0
@@ -180,10 +202,37 @@
 				}
 				this.$emit('changeSelect',arg)
 			},
+			//点击图片预览
+			viewImage(type,index){
+				this.dialog_title = this.goodsItem.goods_name;
+				if(type == 'arr'){
+					this.initial_index = this.current_index*3 + index;
+					this.preview_images = this.goodsItem.detail_imgs;
+				}else{
+					this.initial_index = 0;
+					this.preview_images = [this.goodsItem.main_img];
+				}
+				this.$refs.previewImagesDialog.show_dialog = true;
+			},
+			//切换轮播图
+			checkCarousel(type){
+				if(type == 'prev'){
+					this.$refs.detailCarousel.prev();
+				}else{
+					this.$refs.detailCarousel.next();
+				}
+			},
+			//设置当前选中的下标
+			changeIndex(current_index){
+				this.current_index = current_index;
+			},
 			//打开线性图稿/工艺资料包
 			openWindow(url){
 				window.open(this.domain + url)
 			}
+		},
+		components:{
+			PreviewImage
 		}
 	}
 </script>
@@ -254,6 +303,18 @@
 		.status_icon{
 			width: 13px;
 			height: 11px;
+		}
+		.detail_arrow{
+			width: 14px;
+			height: 14px;
+		}
+		.carousel_box{
+			width: 160px;
+			height: 48px;
+		}
+		.carousel_item_img{
+			width: 48px;
+			height: 48px;
 		}
 	}
 </style>

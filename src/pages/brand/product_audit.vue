@@ -11,7 +11,7 @@
 		<div v-show="unfold">
 			<el-form :inline="true">
 				<el-form-item label="时间：">
-					<el-date-picker style="width:234px" v-model="date" unlink-panels type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+					<el-date-picker v-model="date" unlink-panels type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
 					</el-date-picker>
 				</el-form-item>
 				<el-form-item label="品类：">
@@ -311,7 +311,7 @@
 				tableData:[],
 				table_height:0,
 				loading:false,
-				card_view:false,					//是否卡片展示
+				card_view:true,					//是否卡片展示
 				goods_id:"",						//当前点击的商品ID
 				ref_name:"",						//弹窗名称
 				upload_goods_name:"",				//上传品牌款号品名
@@ -418,8 +418,21 @@
 							}else if(item.brand_status == 2){
 								item['status_name'] = '审核拒绝';
 							}
+							item['main_img'] = "test/SaleClothing_202312181716211506.png";
+							item['detail_imgs'] = [
+								"test/SaleClothing_202312181716211854.png",
+								"test/SaleClothing_202312181716216464.png",
+								"test/SaleClothing_202312181716211506.png",
+								"test/SaleClothing_202312181716217379.png"
+								];
+							let new_detail_imgs = [];
+							for (var i = 0; i < item.detail_imgs.length; i += 3) {
+								new_detail_imgs.push(item.detail_imgs.slice(i, i + 3));
+							}
+							item['preview_detail_imgs'] = new_detail_imgs;
+
 							item['selected'] = false;
-							item['is_up'] = false;
+							item['is_up'] = true;
 						})
 						this.total = data.total;
 					}else{
@@ -462,8 +475,10 @@
 			},
 			//卡片监听展开收起
 			checkStatus(){
-				this.tableData.map(item => {
+				let newTableData = JSON.parse(JSON.stringify(this.tableData));
+				newTableData.map((item,index) => {
 					item['is_up'] = !item['is_up'];
+					this.$set(this.tableData,index,item)
 				})
 			},
 			//点击审核/上传品牌款号
