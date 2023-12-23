@@ -55,7 +55,7 @@
 				<div class="table_color f14 fw500">数据列表</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/setting_upload.png')" text="上传品牌款号" @callback="$refs.uploadBrandKhDialog.show_dialog = true"/>
-					<SettingButton :img="require('@/static/send_audit.png')" text="批量审核" @callback="setFn(goods_id,'auditAllDialog')"/>
+					<SettingButton :img="require('@/static/send_audit.png')" text="批量审核" @callback="setFn(goods_ids,'all')"/>
 					<SettingButton :img="require('@/static/export_icon.png')" text="导出" @callback="$refs.exportDialog.show_dialog = true"/>
 					<SettingButton :img="require('@/static/setting_list_icon.png')" text="列表视图" v-if="card_view" @callback="card_view = false"/>
 					<SettingButton :img="require('@/static/setting_card_icon.png')" text="卡片视图" v-else @callback="card_view = true"/>
@@ -64,7 +64,7 @@
 			<div class="flex flex-warp pl16 scrolly" :style="{height:`${table_height}px`}" v-if="card_view">
 				<GoodsCardItem :goodsItem="item" :currentIndex="index" v-for="(item,index) in tableData" @changeSelect="selectionCardChange" @checkStatus="checkStatus"/>
 			</div>
-			<CustomTable tableName="productAudit" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @auditFn="setFn($event,'auditDialog')" @uploadFn="setFn($event,'uploadBrandKhDialog')" v-else/>
+			<CustomTable tableName="productAudit" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @auditFn="setFn($event,'only')" @uploadFn="setFn($event,'uploadBrandKhDialog')" v-else/>
 		</div>
 		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 上传品牌款号 -->
@@ -87,8 +87,8 @@
 						<el-radio :label="2">拒绝</el-radio>
 					</el-radio-group>
 				</el-form-item>
-				<el-form-item v-if="audit_type == 'auditAllDialog'">
-					<div>勾选{{goods_id.split(',').length}}个资料，确定全部{{type == 1?'通过':'拒绝'}}吗？</div>
+				<el-form-item v-if="audit_type == 'all'">
+					<div>勾选{{goods_ids.length}}个资料，确定全部{{type == 1?'通过':'拒绝'}}吗？</div>
 				</el-form-item>
 				<el-form-item label="审核意见：">
 					<el-input style="width:256px;" :rows="4" type="textarea" v-model="brand_audit_remark" clearable></el-input>
@@ -166,7 +166,7 @@
 					unread:false
 				}],					  //筛选条件
 				active_index:0,						//当前选中的下标
-				unfold:false,						//筛选条件是否展开
+				unfold:true,						//筛选条件是否展开
 				date:[],							//时间选择
 				cate_list:[],				  		//产品分类列表
 				cate_ids:[],						//选中的产品分类
@@ -311,7 +311,8 @@
 				tableData:[],
 				table_height:0,
 				loading:false,
-				card_view:true,					//是否卡片展示
+				card_view:false,						//是否卡片展示
+				goods_ids:[],						//当前勾选的商品ID
 				goods_id:"",						//当前点击的商品ID
 				ref_name:"",						//弹窗名称
 				upload_goods_name:"",				//上传品牌款号品名
@@ -332,10 +333,9 @@
 			//展示卡片时初始化勾选状态
 			card_view:function(n,o){
 				if(n){
-					let goods_ids = this.goods_id.split(',');
 					let tableData = JSON.parse(JSON.stringify(this.tableData));
 					tableData.map((item,index) => {
-						if(goods_ids.indexOf(item.goods_id.toString()) > -1){
+						if(this.goods_ids.indexOf(item.goods_id.toString()) > -1){
 							item['selected'] = true;
 						}else{
 							item['selected'] = false;
@@ -418,13 +418,6 @@
 							}else if(item.brand_status == 2){
 								item['status_name'] = '审核拒绝';
 							}
-							item['main_img'] = "test/SaleClothing_202312181716211506.png";
-							item['detail_imgs'] = [
-								"test/SaleClothing_202312181716211854.png",
-								"test/SaleClothing_202312181716216464.png",
-								"test/SaleClothing_202312181716211506.png",
-								"test/SaleClothing_202312181716217379.png"
-								];
 							let new_detail_imgs = [];
 							for (var i = 0; i < item.detail_imgs.length; i += 3) {
 								new_detail_imgs.push(item.detail_imgs.slice(i, i + 3));
@@ -457,7 +450,7 @@
 				let goods_ids = selected_list.map(item => {
 					return item.goods_id;
 				})
-				this.goods_id = goods_ids.join(',');
+				this.goods_ids = goods_ids;
 			},
 			//卡片监听多选
 			selectionCardChange(v){
@@ -471,7 +464,7 @@
 				let goods_ids = goods_arr.map(item => {
 					return item.goods_id;
 				})
-				this.goods_id = goods_ids.join(',');
+				this.goods_ids = goods_ids;
 			},
 			//卡片监听展开收起
 			checkStatus(){
@@ -491,11 +484,11 @@
 				}else{
 					this.audit_type = ref_name;
 					this.ref_name = 'auditDialog';
-					if(ref_name == 'auditAllDialog' && arg == ''){
+					if(ref_name == 'all' && arg.length == 0){
 						this.$message.warning('请至少勾选一项！');
 						return;
 					}
-					this.goods_id = arg;
+					this.goods_id = ref_name == 'all'?arg.join(','):arg;
 				}
 				this.$refs[this.ref_name].show_dialog = true;
 			},

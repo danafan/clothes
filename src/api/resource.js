@@ -26,6 +26,10 @@ let path = {
 	addBrandKsbm:'api/brand_goods/add_brand_ksbm',		//上传单个商品品牌款号
 	brandGoodsAudit:'api/brand_goods/check',			//品牌商审核
 	importBrandKsbm:'api/brand_goods/import_brand_ksbm',//批量导入品牌款号
+	qualityInspectionList:'api/brand_goods/quality_inspection_list',	//质检报告审核列表
+	qualityInspectionAudit:'api/brand_goods/quality_inspection_audit',	//质检报告审核
+	sendGoodsList:'api/brand_goods/send_goods_list',					//样衣审核列表
+	auditSendAudit:'api/brand_goods/audit_send',						//样衣审核
 }					
 export default{
 	//获取用户信息
@@ -127,6 +131,22 @@ export default{
 	//批量导入品牌款号
 	importBrandKsbm(params){
 		return http.post(path.importBrandKsbm, params)
+	},
+	//质检报告审核列表
+	qualityInspectionList(params){
+		return http.get(path.qualityInspectionList, params)
+	},
+	//质检报告审核
+	qualityInspectionAudit(params){
+		return http.post(path.qualityInspectionAudit, params)
+	},
+	//样衣审核列表
+	sendGoodsList(params){
+		return http.get(path.sendGoodsList, params)
+	},
+	//样衣审核
+	auditSendAudit(params){
+		return http.post(path.auditSendAudit, params)
 	},
 }
 

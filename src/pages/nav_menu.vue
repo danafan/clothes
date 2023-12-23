@@ -59,7 +59,7 @@
 		<!-- 右侧页面 -->
 		<div class="flex-1 ml24 flex fc">
 			<div class="flex jse mb24">
-				<div class="admin_setting flex ac jc f14 fw400">用户名称 ｜ 退出</div>
+				<div class="admin_setting flex ac jc f14 fw400">{{userInfo.wx_user_name}} ｜ 退出</div>
 			</div>
 			<div class="tab_pane flex flex-warp mb16">
 				<div class="tab_item flex ac f14 mr32 mb16 pointer" :class="{'active_tab_item_bg':item.hover || item.active}" @mouseenter="mouseTab(index,true)" @mouseleave="mouseTab(index,false)" @click="$store.commit('checkTab',item)" v-for="(item,index) in tabsList">
@@ -86,6 +86,10 @@
 			this.$store.commit('initMenuStatus',this.$route.path)
 		},
 		computed:{
+			//用户信息
+			userInfo(){
+				return this.$store.state.userInfo;
+			},
 			//菜单列表
 			menuList(){
 				return this.$store.state.menuList;
