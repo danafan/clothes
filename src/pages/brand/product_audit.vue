@@ -335,7 +335,7 @@
 				if(n){
 					let tableData = JSON.parse(JSON.stringify(this.tableData));
 					tableData.map((item,index) => {
-						if(this.goods_ids.indexOf(item.goods_id.toString()) > -1){
+						if(this.goods_ids.indexOf(item.goods_id) > -1){
 							item['selected'] = true;
 						}else{
 							item['selected'] = false;

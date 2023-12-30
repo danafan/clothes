@@ -14,10 +14,10 @@
 			</div>
 			<!-- 收起-显示菜单图标 -->
 			<div v-if="!menu_status">
-				<div class="menu_item flex ac jc pointer relative" v-for="(menu,index) in menuList">
+				<div class="menu_item flex ac jc pointer relative" @mouseenter="menu_active_index = index" @mouseleave="menu_active_index = -1" v-for="(menu,index) in menuList">
 					<a-popover overlayClassName="a_popover" placement="rightTop" trigger="hover">
 						<template slot="content">
-							<div class="popover_menu_item flex ac jsb pointer pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="checkMenu(child,index)" v-for="(child,child_index) in menu.children">
+							<div class="popover_menu_item flex ac jsb pointer pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}" @mouseenter="child_active_index = child_index" @mouseleave="child_active_index = -1" @click="checkChildMenu(index,child_index)" v-for="(child,child_index) in menu.children">
 								<div class="flex ac">
 									<img class="menu_icon" :src="child.icon_active" v-if="menu.active">
 									<img class="menu_icon" :src="child.icon" v-else>
@@ -34,16 +34,16 @@
 			<!-- 展开-显示菜单列表 -->
 			<div class="w_100" v-if="menu_status">
 				<div class="w_100" v-for="(menu,index) in menuList">
-					<div class="menu_item pl24 pr24 flex ac jsb pointer" @click="$store.commit('checkMenuStatus',index)">
+					<div class="menu_item pl24 pr24 flex ac jsb pointer" @mouseenter="menu_active_index = index" @mouseleave="menu_active_index = -1" :class="{'menu_item_content_active':menu_active_index == index}" @click="$store.commit('checkMenu',index)">
 						<div class="flex ac">
 							<img class="menu_icon" :src="menu.icon">
 							<div class="f16 fw400 space-nowrap">{{menu.name}}</div>
 						</div>
 						<img class="arrow_icon" :class="{'arrow_icon_up':menu.active}" src="@/static/arrow_up_icon.png">
 					</div>
-					<div class="supplier_menu_children" v-if="menu.active">
-						<div class="menu_item pl16 pr16 flex ac jsb pointer" @mouseenter="mouseMenu(index,child_index,true)" @mouseleave="mouseMenu(index,child_index,false)" @click="checkMenu(child,index)" v-for="(child,child_index) in menu.children">
-							<div class="menu_item_content w_100 h_100 flex ac jsb pl24 pr24" :class="{'menu_item_content_active':child.hover || child.active}">
+					<div class="supplier_menu_children" v-if="menu.open">
+						<div class="menu_item pl16 pr16 flex ac jsb pointer" @mouseenter="child_active_index = child_index" @mouseleave="child_active_index = -1" @click="checkChildMenu(index,child_index)" v-for="(child,child_index) in menu.children">
+							<div class="menu_item_content w_100 h_100 flex ac jsb pl24 pr24" :class="{'menu_item_content_active':child_active_index == child_index || child.active}">
 								<div class="flex ac">
 									<img class="menu_icon" :src="child.icon_active" v-if="child.active">
 									<img class="menu_icon" :src="child.icon" v-else>
@@ -62,10 +62,10 @@
 				<div class="admin_setting flex ac jc f14 fw400">{{userInfo.wx_user_name}} ｜ 退出</div>
 			</div>
 			<div class="tab_pane flex flex-warp mb16">
-				<div class="tab_item flex ac f14 mr32 mb16 pointer" :class="{'active_tab_item_bg':item.hover || item.active}" @mouseenter="mouseTab(index,true)" @mouseleave="mouseTab(index,false)" @click="$store.commit('checkTab',item)" v-for="(item,index) in tabsList">
+				<div class="tab_item flex ac f14 mr32 mb16 pointer" :class="{'active_tab_item_bg':tab_active_index == index || item.active}" @mouseenter="tab_active_index = index" @mouseleave="tab_active_index = -1" @click="$store.commit('checkTab',item)" v-for="(item,index) in tabsList">
 					<div class="space-nowrap">{{item.name}}</div>
-					<img class="tab_close" src="@/static/tab_close_active.png" @click.stop="$store.commit('deleteTab',item)" v-if="(item.hover || item.active) && !item.default">
-					<img class="tab_close" src="@/static/tab_close.png" @click.stop="$store.commit('deleteTab',item)" v-if="!item.hover && !item.active && !item.default">
+					<img class="tab_close" src="@/static/tab_close_active.png" @click.stop="$store.commit('deleteTab',item)" v-if="(tab_active_index == index || item.active) && !item.default">
+					<img class="tab_close" src="@/static/tab_close.png" @click.stop="$store.commit('deleteTab',item)" v-if="tab_active_index != index && !item.active && !item.default">
 				</div>
 			</div>
 			<div class="page_container flex-1">
@@ -79,11 +79,17 @@
 	export default{
 		data(){
 			return{
-				menu_status:false,
+				menu_status:true,
+				menu_active_index:-1,			//当前鼠标移入的一级菜单下标
+				child_active_index:-1,			//当前鼠标移入的二级菜单下标
+				tab_active_index:-1,			//当前鼠标移入标签页的下标
 			}
 		},
-		created(){
-			this.$store.commit('initMenuStatus',this.$route.path)
+		async created(){
+			//获取用户信息
+			await this.$store.dispatch('getUserInfo');
+			//获取菜单列表
+			await this.$store.dispatch('getMenuList',this.$route.path);
 		},
 		computed:{
 			//用户信息
@@ -100,28 +106,14 @@
 			}
 		},
 		methods:{
-			//鼠标移入/移出二级菜单
-			mouseMenu(index,child_index,bool){
+			//切换二级导航
+			checkChildMenu(index,child_index){
 				let arg = {
 					index:index,
-					child_index:child_index,
-					bool:bool
+					child_index:child_index
 				}
-				this.$store.commit('mouseMenu',arg);
-			},
-			//切换导航
-			checkMenu(child,index){
-				child['parent_index'] = index;
-				this.$store.commit('checkMenu',child)
-			},
-			//鼠标移入/移出标签页
-			mouseTab(index,bool){
-				let arg = {
-					index:index,
-					bool:bool
-				}
-				this.$store.commit('mouseTab',arg);
-			},
+				this.$store.commit('checkChildMenu',arg)
+			}
 		}
 	}
 </script>
@@ -132,9 +124,9 @@
 		color:#718096;
 		border-radius: 14px;
 	}
-	.a_popover .menu_item_content_active{
+	/*.a_popover .menu_item_content_active{
 		background-color: rgba(63,140,255, 0.1);
-	}
+	}*/
 	.a_popover .active_color{
 		color: #3F8CFF;
 	}

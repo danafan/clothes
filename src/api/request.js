@@ -13,6 +13,10 @@ export function middleWare(params,type) {
     }
   }
 
+  if(sessionStorage.getItem("admin_id")){
+    params['admin_id'] = sessionStorage.getItem("admin_id")
+  }
+
   // var ding_user_id = !localStorage.getItem("ding_user_id")?'':localStorage.getItem("ding_user_id");
   // var login_token = !localStorage.getItem("login_token")?'':localStorage.getItem("login_token");
   // var secret_key = !localStorage.getItem("secret_key")?'':localStorage.getItem("secret_key");
@@ -69,7 +73,8 @@ export function middleWare(params,type) {
   
   //组织参数
   // var req = {...params,...{sign:sign,token:token}};
-  var req = {...params,...{admin_id:'15523556114924406'}};   //供应商
+  var req = {...params};
+  // var req = {...params,...{admin_id:'15523556114924406'}};   //供应商
   // var req = {...params,...{admin_id:'15740402149096123'}};   //品牌
   // var req = {...params,...{admin_id:'15262575868677723'}};   //后台
   var get_arr = [];
