@@ -85,11 +85,9 @@
 				tab_active_index:-1,			//当前鼠标移入标签页的下标
 			}
 		},
-		async created(){
+		created(){
 			//获取用户信息
-			await this.$store.dispatch('getUserInfo');
-			//获取菜单列表
-			await this.$store.dispatch('getMenuList',this.$route.path);
+			this.$store.dispatch('getUserInfo',this.$route.path);
 		},
 		computed:{
 			//用户信息

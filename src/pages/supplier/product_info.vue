@@ -63,8 +63,8 @@
 				<div class="flex">
 					<SettingButton :img="require('@/static/jian_icon.png')" text="产品检验项目表"/>
 					<SettingButton :img="require('@/static/send_audit.png')" text="发起审核" @callback="setFn(goods_id,'auditDialog')"/>
-					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
-					<SettingButton :img="require('@/static/import_icon.png')" text="导入"/>
+					<SettingButton :img="require('@/static/export_icon.png')" text="导出" @callback="$refs.exportDialog.show_dialog = true"/>
+					<SettingButton :img="require('@/static/import_icon.png')" text="导入" @callback="$refs.importDialog.show_dialog = true"/>
 					<SettingButton :img="require('@/static/create_icon.png')" text="新建" @callback="addEditFn('','add')"/>
 				</div>
 			</div>
@@ -239,6 +239,28 @@
 		<!-- 撤销 -->
 		<custom-dialog dialogTitle="撤销" ref="cancelDialog" @callback="supplierGoodsCancel">
 			<div class="default_color f14 fw400">确定要撤销该条资料内容吗？</div>
+		</custom-dialog>
+		<!-- 导出 -->
+		<custom-dialog dialogTitle="导出" ref="exportDialog" @callback="exportFn">
+			<div class="default_color f14 fw400">确定导出吗？</div>
+		</custom-dialog>
+		<!-- 导入 -->
+		<custom-dialog dialogTitle="导入商品资料" ref="importDialog" :showConfirm="false">
+			<el-form class="dialog_form">
+				<el-form-item>
+					<div class="flex">
+						<SettingButton margin="right" :img="require('@/static/download_icon.png')" text="下载模版" @callback="downTemplate"/>
+						<SettingButton :isImport="true" :img="require('@/static/import_icon.png')" text="导入" @callback="importProductInfo"/>
+					</div>
+				</el-form-item>
+				<el-form-item>
+					<div class="flex">
+						<div class="default_color f12 mr24">1.下载模板</div>
+						<div class="default_color f12 mr24">2.填写商品资料</div>
+						<div class="default_color f12">3.导入填写完的模板</div>
+					</div>
+				</el-form-item>
+			</el-form>
 		</custom-dialog>
 	</div>
 </template>
@@ -613,6 +635,50 @@
 				this.page = page;
 				//获取商品资料列表
 				this.getData();
+			},
+			//导出
+			exportFn(){
+				let arg = {
+					start_date:this.date && this.date.length> 0?this.date[0]:"",
+					end_date:this.date && this.date.length> 0?this.date[1]:"",
+					series_id:this.series_ids.join(','),
+					category_id:this.cate_ids.join(','),
+					goods_name:this.goods_name,
+					search:this.search,
+					price_type:this.price_type,
+					start_price:this.start_price,
+					end_price:this.end_price,
+					user_group:this.user_group.join(','),
+					page:this.page,
+					pagesize:this.pagesize
+				}
+				if(this.active_index > 0){
+					arg['supplier_status'] = this.radio_list[this.active_index].id;
+				}
+				let arg_arr = [];
+				for(let k in arg){
+					arg_arr.push(`${k}=${arg[k]}`)
+				}
+				let export_url = `${location.origin}/api/supplier_goods/export?${arg_arr.join('&')}`;
+				console.log(export_url)
+				window.open(export_url)
+			},	
+			//点击下载模版
+			downTemplate(){
+				window.open(`${this.downLoadUrl}/商品资料导入模板.xlsx`);
+			},
+			//导入提交
+			importProductInfo(file){
+				resource.importGoods({file:file}).then(res => {
+					if (res.data.code == 1) {
+						this.$message.success(res.data.msg);
+						//获取列表
+						this.getData();
+						this.$refs.importDialog.show_dialog = false;
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
 			},
 			//上传图片回调
 			uploadImage(img_arr,prop){

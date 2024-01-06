@@ -15,6 +15,7 @@ let path = {
 	supplierGoodsEdit:'api/supplier_goods/edit',		//编辑/获取详情
 	supplierGoodsAudit:'api/supplier_goods/apply_check',//发起审核
 	supplierGoodsCancel:'api/supplier_goods/revoke',	//撤销审核
+	importGoods:'api/supplier_goods/import_add',		//导入商品资料
 	supplierSendGoodsList:'api/supplier_goods/send_goods_list',		//商品寄样列表
 	supplierSendGoods:'api/supplier_goods/add_logistics',			//商品寄出
 	supplierSendCancel:'api/supplier_goods/revoke_logistics',		//寄出撤销
@@ -91,6 +92,10 @@ export default{
 	//撤销审核
 	supplierGoodsCancel(params){
 		return http.post(path.supplierGoodsCancel, params)
+	},
+	//导入商品资料
+	importGoods(params){
+		return http.post(path.importGoods, params)
 	},
 	//商品寄样列表
 	supplierSendGoodsList(params){

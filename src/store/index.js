@@ -173,11 +173,94 @@ const store = new Vuex.Store({
 	},
 	actions: {
 		// 获取用户信息
-		getUserInfo (context) {
+		getUserInfo (context,path) {
 			resource.getUserInfo().then(res => {
 				if (res.data.code == 1) {
 					let data = res.data.data;
 					context.commit('setUserInfo', data);
+					resource.menuList().then(res => {
+						if(res.data.code == 1){
+							let supplier_menu = [{
+								name:'商品资料上传',
+								icon:require('@/static/info_upload_menu.png'),
+								icon_big:require('@/static/info_upload_menu_big.png'),
+								icon_big_active:require('@/static/info_upload_menu_big_active.png'),
+								open:false,
+								children:[{
+									icon:require('@/static/product_info.png'),
+									icon_active:require('@/static/product_info_active.png'),
+									name:'商品资料',
+									path:'/product_info',
+									active:false
+								},{
+									icon:require('@/static/send_sample.png'),
+									icon_active:require('@/static/send_sample_active.png'),
+									name:'商品寄样',
+									path:'/send_sample',
+									active:false
+								},{
+									icon:require('@/static/quality_inspection.png'),
+									icon_active:require('@/static/quality_inspection_active.png'),
+									name:'质检报告',
+									path:'/quality_inspection',
+									active:false
+								}]
+							}];				//供应商菜单
+							let brand_menu = [{
+								name:'商品资料审核',
+								icon:require('@/static/product_info_audit.png'),
+								icon_big:require('@/static/product_info_audit_big.png'),
+								icon_big_active:require('@/static/product_info_audit_big_active.png'),
+								open:false,
+								children:[{
+									icon:require('@/static/product_info_audit.png'),
+									icon_active:require('@/static/product_info_audit_active.png'),
+									name:'商品资料审核',
+									path:'/product_audit',
+									active:false
+								},{
+									icon:require('@/static/report_audit.png'),
+									icon_active:require('@/static/report_audit_active.png'),
+									name:'质检报告审核',
+									path:'/report_audit',
+									active:false
+								},{
+									icon:require('@/static/sample_audit.png'),
+									icon_active:require('@/static/sample_audit_active.png'),
+									name:'样衣审核',
+									path:'/sample_audit',
+									active:false
+								}]
+							}];					//品牌菜单
+							let menu_list = null;
+							if(data.wx_user_id == "15523556114924406"){	  		//供应商
+								menu_list = supplier_menu;
+							}else if(data.wx_user_id == '15740402149096123'){		//品牌
+								menu_list = brand_menu;
+							}
+							let current_index = menu_list.findIndex(item => {
+								return item.path == path;
+							})
+							if(current_index == -1){		//是子菜单
+								menu_list.map((menu,index) => {
+									if(menu.children){
+										let child_index = menu.children.findIndex(child => {
+											child.active = child.path == path;
+											return child.path == path;
+										})
+										menu.open = child_index > -1;
+									}
+								})
+							}else{							//不是子菜单
+								menu_list.map((menu,index) => {
+									menu.active = index == current_index;
+								})
+							}
+							context.commit('setMenuList', menu_list);
+						}else{
+							Message.warning(res.data.msg);
+						}
+					})
 				}else{
 					this.$message.warning(res.data.msg);
 				}
@@ -240,9 +323,10 @@ const store = new Vuex.Store({
 						}]
 					}];					//品牌菜单
 					let menu_list = null;
-					if(context.state.userInfo.user_type == 2){	  	//供应商
+					console.log(context.state.userInfo)
+					if(context.state.userInfo.wx_user_id == "15523556114924406"){	  		//供应商
 						menu_list = supplier_menu;
-					}else if(context.state.userInfo.user_type == 3){	//品牌
+					}else if(context.state.userInfo.wx_user_id == '15740402149096123'){		//品牌
 						menu_list = brand_menu;
 					}
 					let current_index = menu_list.findIndex(item => {
