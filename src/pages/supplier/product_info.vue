@@ -59,7 +59,7 @@
 		<!-- 表格内容 -->
 		<div class="table_content" id="table_content">
 			<div class="p16 flex ac jsb" id="table_setting">
-				<div class="table_color f14 fw500">数据列表</div>
+				<div class="flex ac table_color f14 fw500">数据列表（已选：<div class="login_title">{{selected_num}}</div>）</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/jian_icon.png')" text="产品检验项目表"/>
 					<SettingButton :img="require('@/static/send_audit.png')" text="发起审核" @callback="setFn(goods_id,'auditDialog')"/>
@@ -165,8 +165,8 @@
 						</div>
 						<div class="flex ac mb24">
 							<div class="custom_label">使用人群：</div>
-							<el-select style="width:280px" v-model="info.user_group" clearable>
-								<el-option v-for="item in user_list" :key="item.wx_user_id" :label="item.wx_user_name" :value="item.wx_user_id">
+							<el-select style="width:280px" v-model="info.user_group" clearable filterable allow-create default-first-option>
+								<el-option v-for="item in user_group_list" :key="item" :label="item" :value="item">
 								</el-option>
 							</el-select>
 						</div>
@@ -320,6 +320,7 @@
 				cate_list:[],				  			//产品分类列表
 				cate_ids:[],							//选中的产品分类
 				brand_list:[],					  		//品牌列表
+				user_group_list:[],						//使用人群列表
 				goods_name:"",							//产品名称
 				search:"",								//搜索内容
 				price_type_list:[
@@ -465,6 +466,7 @@
 					prop:'quality_inspection_file_url',
 				}
 				],						  //表头信息
+				selected_num:0,							//已选数量
 				tableData:[],							//表格数据
 				table_height:0,
 				dialog:false,							//新建/编辑弹窗
@@ -525,6 +527,8 @@
 			this.ajaxUsers();
 			//获取品牌列表
 			this.ajaxBrands();
+			//使用人群列表
+			this.ajaxUserGroup();
 			//获取商品资料列表
 			this.getData();
 		},
@@ -577,6 +581,16 @@
 				resource.ajaxBrands().then(res => {
 					if (res.data.code == 1) {
 						this.brand_list = res.data.data;
+					}else{
+						this.$message.warning(res.data.msg)
+					}
+				})
+			},
+			//使用人群列表
+			ajaxUserGroup(){
+				resource.ajaxUserGroup().then(res => {
+					if (res.data.code == 1) {
+						this.user_group_list = res.data.data;
 					}else{
 						this.$message.warning(res.data.msg)
 					}
@@ -869,6 +883,7 @@
 			},
 			//监听多选
 			selectionChange(selected_list){
+				this.selected_num = selected_list.length;
 				let goods_ids = selected_list.map(item => {
 					return item.goods_id;
 				})

@@ -6,6 +6,7 @@ let path = {
 	ajaxCates:'api/common/ajax_cates',					//获取品类列表
 	ajaxUsers:'api/common/ajax_users',					//获取用户列表
 	ajaxBrands:'api/common/ajax_brands',				//获取品牌列表
+	ajaxUserGroup:'api/common/ajax_user_group',			//使用人群列表
 	uploadFile:'api/common/upload',						//上传文件
 	deleteFile:'api/common/del_file',					//删除文件
 	//供应商
@@ -56,6 +57,10 @@ export default{
 	//获取品牌列表
 	ajaxBrands(params){
 		return http.get(path.ajaxBrands, params)
+	},
+	//使用人群列表
+	ajaxUserGroup(params){
+		return http.get(path.ajaxUserGroup, params)
 	},
 	//上传文件
 	uploadFile(params){

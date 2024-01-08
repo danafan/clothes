@@ -24,7 +24,7 @@
 					<el-input style="width:234px" v-model="goods_name" placeholder="请输入"></el-input>
 				</el-form-item>
 				<el-form-item label="搜索：">
-					<el-input style="width:198px" v-model="search" placeholder="款号/货号"></el-input>
+					<el-input style="width:198px" v-model="search" placeholder="款号/货号/物流单号"></el-input>
 				</el-form-item>
 				<el-form-item>
 					<PageButton @callback="changePage(1)"/>
@@ -34,7 +34,7 @@
 		<!-- 表格内容 -->
 		<div class="table_content" id="table_content">
 			<div class="p16 flex ac jsb" id="table_setting">
-				<div class="table_color f14 fw500">数据列表</div>
+				<div class="flex ac table_color f14 fw500">数据列表（已选：<div class="login_title">{{goods_ids.length}}</div>）</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/send_audit.png')" text="批量审核" @callback="setFn(goods_ids,'all')"/>
 				</div>
@@ -113,7 +113,7 @@
 					unread:true
 				}],					  //筛选条件
 				active_index:0,						//当前选中的下标
-				unfold:false,						//筛选条件是否展开
+				unfold:true,						//筛选条件是否展开
 				date:[],							//时间选择
 				cate_list:[],				  		//产品分类列表
 				cate_ids:[],						//选中的产品分类

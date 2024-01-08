@@ -52,7 +52,7 @@
 		<!-- 表格内容 -->
 		<div class="table_content" id="table_content">
 			<div class="p16 flex ac jsb" id="table_setting">
-				<div class="table_color f14 fw500">数据列表</div>
+				<div class="flex ac table_color f14 fw500">数据列表（已选：<div class="login_title">{{goods_ids.length}}</div>）</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/setting_upload.png')" text="上传品牌款号" @callback="$refs.uploadBrandKhDialog.show_dialog = true"/>
 					<SettingButton :img="require('@/static/send_audit.png')" text="批量审核" @callback="setFn(goods_ids,'all')"/>

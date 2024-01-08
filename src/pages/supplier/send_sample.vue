@@ -43,7 +43,7 @@
 		<!-- 表格内容 -->
 		<div class="table_content" id="table_content">
 			<div class="p16 flex ac jsb" id="table_setting">
-				<div class="table_color f14 fw500">数据列表</div>
+				<div class="flex ac table_color f14 fw500">数据列表（已选：<div class="login_title">{{selected_num}}</div>）</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/send_icon.png')" text="寄出样衣" @callback="setFn(goods_id,'sendAllDialog')"/>
 					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
@@ -168,6 +168,7 @@
 					prop:'send_audit_remark',
 				}
 				],
+				selected_num:0,						//已勾选的数量
 				tableData:[],
 				table_height:0,
 				loading:false,
@@ -330,6 +331,7 @@
 			},
 			//监听多选
 			selectionChange(selected_list){
+				this.selected_num = selected_list.length;
 				let goods_ids = selected_list.map(item => {
 					return item.goods_id;
 				})
