@@ -127,6 +127,7 @@
 </template>
 <script>
 	import resource from '@/api/resource.js'
+	import { exportExcel } from "@/utils/export.js";
 
 	import PageRadio from '@/components/pageRadio'
 	import SettingButton from '@/components/settingButton'
@@ -560,7 +561,7 @@
 					search:this.search,
 					price_type:this.price_type,
 					start_price:this.start_price,
-					end_price:this.end_price
+					end_price:this.end_price,
 				}
 				if(this.active_index > 0){
 					arg['brand_status'] = this.radio_list[this.active_index].id;
@@ -574,12 +575,8 @@
 				if(this.quality_inspection_status){
 					arg['quality_inspection_status'] = this.quality_inspection_status;
 				}
-				let arg_arr = [];
-				for(let k in arg){
-					arg_arr.push(`${k}=${arg[k]}`)
-				}
-				let export_url = `${location.origin}/api/brand_goods/export?${arg_arr.join('&')}`;
-				console.log(export_url)
+				exportExcel(arg,'api/brand_goods/export');
+				this.$refs.exportDialog.show_dialog = false;
 			},
 			//监听排序
 			sortChange(v){

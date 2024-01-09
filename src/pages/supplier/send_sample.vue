@@ -46,8 +46,8 @@
 				<div class="flex ac table_color f14 fw500">数据列表（已选：<div class="login_title">{{selected_num}}</div>）</div>
 				<div class="flex">
 					<SettingButton :img="require('@/static/send_icon.png')" text="寄出样衣" @callback="setFn(goods_id,'sendAllDialog')"/>
-					<SettingButton :img="require('@/static/export_icon.png')" text="导出"/>
-					<SettingButton :img="require('@/static/import_icon.png')" text="导入"/>
+					<!-- <SettingButton :img="require('@/static/export_icon.png')" text="导出" @callback="$refs.exportDialog.show_dialog = true"/> -->
+					<!-- <SettingButton :img="require('@/static/import_icon.png')" text="导入"/> -->
 				</div>
 			</div>
 			<CustomTable tableName="sendSample" :tableHeight="table_height" :titleList="titleList" :tableData="tableData" :loading="loading" @selectionChange="selectionChange" @sendFn="setFn($event,'sendDialog')" @cancelFn="setFn($event,'cancelDialog')"/>
@@ -72,10 +72,15 @@
 		<custom-dialog dialogTitle="撤销" ref="cancelDialog" @callback="sendGoodsCancel">
 			<div class="default_color f14 fw400">确定要撤销商品寄出吗？</div>
 		</custom-dialog>
+		<!-- 导出 -->
+		<custom-dialog dialogTitle="导出" ref="exportDialog" @callback="exportFn">
+			<div class="default_color f14 fw400">确定导出吗？</div>
+		</custom-dialog>
 	</div>
 </template>
 <script>
 	import resource from '@/api/resource.js'
+	import { exportExcel } from "@/utils/export.js";
 
 	import PageRadio from '@/components/pageRadio'
 	import SettingButton from '@/components/settingButton'
@@ -269,6 +274,22 @@
 					}
 				})
 			},
+			//导出
+			exportFn(){
+				let arg = {
+					start_date:this.date && this.date.length> 0?this.date[0]:"",
+					end_date:this.date && this.date.length> 0?this.date[1]:"",
+					category_id:this.cate_ids.join(','),
+					brand_id:this.brand_ids.join(','),
+					goods_name:this.goods_name,
+					search:this.search,
+				}
+				if(this.active_index > 0){
+					arg['send_status'] = this.radio_list[this.active_index].id;
+				}
+				exportExcel(arg,'api/supplier_goods/send_goods_export');
+				this.$refs.exportDialog.show_dialog = false;
+			},	
 			//点击寄出/撤销
 			setFn(arg,ref_name){
 				this.ref_name = ref_name;

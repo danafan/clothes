@@ -266,6 +266,7 @@
 </template>
 <script>
 	import resource from '@/api/resource.js'
+	import { exportExcel } from "@/utils/export.js";
 
 	import PageRadio from '@/components/pageRadio'
 	import SettingButton from '@/components/settingButton'
@@ -662,20 +663,13 @@
 					price_type:this.price_type,
 					start_price:this.start_price,
 					end_price:this.end_price,
-					user_group:this.user_group.join(','),
-					page:this.page,
-					pagesize:this.pagesize
+					user_group:this.user_group.join(',')
 				}
 				if(this.active_index > 0){
 					arg['supplier_status'] = this.radio_list[this.active_index].id;
 				}
-				let arg_arr = [];
-				for(let k in arg){
-					arg_arr.push(`${k}=${arg[k]}`)
-				}
-				let export_url = `${location.origin}/api/supplier_goods/export?${arg_arr.join('&')}`;
-				console.log(export_url)
-				window.open(export_url)
+				exportExcel(arg,'api/supplier_goods/export');
+				this.$refs.exportDialog.show_dialog = false;
 			},	
 			//点击下载模版
 			downTemplate(){

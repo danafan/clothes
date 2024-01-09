@@ -11,6 +11,7 @@ let path = {
 	deleteFile:'api/common/del_file',					//删除文件
 	//供应商
 	supplierGoodsList:'api/supplier_goods/list',		//商品资料列表
+	supplierGoodsExport:'api/supplier_goods/export',	//商品资料列表导出
 	supplierGoodsAdd:'api/supplier_goods/add',			//上传商品资料
 	supplierGoodsDel:'api/supplier_goods/del',			//删除商品资料
 	supplierGoodsEdit:'api/supplier_goods/edit',		//编辑/获取详情
@@ -73,6 +74,10 @@ export default{
 	//商品资料列表
 	supplierGoodsList(params){
 		return http.get(path.supplierGoodsList, params)
+	},
+	//商品资料列表导出
+	supplierGoodsExport(params){
+		return http.get(path.supplierGoodsExport, params)
 	},
 	//上传商品资料
 	supplierGoodsAdd(params){
