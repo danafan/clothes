@@ -82,7 +82,7 @@
 					<div>
 						<div class="flex ac mb24">
 							<div class="custom_label">品牌：</div>
-							<el-select style="width:280px" v-model="info.brand_id" clearable>
+							<el-select style="width:280px" v-model="info.brand_id" clearable @change="changeBrand">
 								<el-option v-for="item in brand_list" :key="item.brand_id" :label="item.brand_name" :value="item.brand_id">
 								</el-option>
 							</el-select>
@@ -538,6 +538,12 @@
 			this.onResize();
 			window.addEventListener("resize", this.onResize());
 		},
+		computed:{
+			//用户信息
+			userInfo(){
+				return this.$store.state.userInfo;
+			}
+		},
 		methods: {
     		//设置表格高度
 			onResize() {
@@ -547,9 +553,22 @@
 					this.table_height = table_content_height - table_setting_height - 30;
 				});
 			},
+			//切换品牌
+			changeBrand(brand_id){
+				this.info.series_id = "";
+				this.info.category_id = "";
+				//获取系列列表
+				this.ajaxSeries(brand_id);
+				//获取品类列表
+				this.ajaxCates(brand_id);
+			},
 			//获取系列列表
-			ajaxSeries(){
-				resource.ajaxSeries().then(res => {
+			ajaxSeries(brand_id){
+				let arg = {};
+				if(brand_id){
+					arg['brand_id'] = brand_id;
+				}
+				resource.ajaxSeries(arg).then(res => {
 					if (res.data.code == 1) {
 						this.series_list = res.data.data;
 					}else{
@@ -558,8 +577,12 @@
 				})
 			},
 			//获取品类列表
-			ajaxCates(){
-				resource.ajaxCates().then(res => {
+			ajaxCates(brand_id){
+				let arg = {};
+				if(brand_id){
+					arg['brand_id'] = brand_id;
+				}
+				resource.ajaxCates(arg).then(res => {
 					if (res.data.code == 1) {
 						this.cate_list = res.data.data;
 					}else{
@@ -579,7 +602,7 @@
 			},
 			//获取品牌列表
 			ajaxBrands(){
-				resource.ajaxBrands().then(res => {
+				resource.ajaxBrands({supplier_id:this.userInfo.supplier_id}).then(res => {
 					if (res.data.code == 1) {
 						this.brand_list = res.data.data;
 					}else{

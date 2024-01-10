@@ -18,7 +18,7 @@ const store = new Vuex.Store({
 			active:true
 		}],												//当前已打开的菜单列表
 		domain:"",										//文件前缀
-		userInfo:{},									//用户信息
+		userInfo:sessionStorage.getItem("userInfo")?JSON.parse(sessionStorage.getItem("userInfo")):{},									//用户信息
 	},
 	mutations: {
 		//点击一级导航
@@ -168,6 +168,7 @@ const store = new Vuex.Store({
 		//设置用户信息
 		setUserInfo(state,user_info){
 			state.domain = user_info.img_domain;
+			sessionStorage.setItem("userInfo", JSON.stringify(user_info));
 			state.userInfo = user_info;
 		}
 	},
