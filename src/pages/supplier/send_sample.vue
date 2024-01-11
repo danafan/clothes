@@ -54,7 +54,7 @@
 		</div>
 		<Pagination :page="page" :pagesize="pagesize" :total="total" @changePage="changePage"/>
 		<!-- 寄出 -->
-		<custom-dialog dialogTitle="上传寄样信息" ref="sendDialog" @callback="sendGoods">
+		<custom-dialog dialogTitle="上传寄样信息" ref="sendDialog" @close="closeSend" @callback="sendGoods">
 			<el-form class="dialog_form" label-width="180">
 				<el-form-item label="品名：">
 					<div class="default_color f14 fw400">{{send_goods_name}}</div>
@@ -295,7 +295,7 @@
 				this.ref_name = ref_name;
 				if(ref_name == 'sendDialog'){
 					this.send_goods_name = arg.goods_name;
-					this.goods_id = arg.goods_id;
+					this.goods_id = arg.goods_id.toString();
 				}else{
 					if(ref_name == 'sendAllDialog' && arg == ''){
 						this.$message.warning('请至少勾选一项！');
@@ -304,6 +304,11 @@
 					this.goods_id = arg;
 				}
 				this.$refs[this.ref_name].show_dialog = true;
+			},
+			//寄出弹窗关闭
+			closeSend(){
+				this.goods_id = "";
+				this.logistics_name = "";
 			},
 			//寄出提交
 			sendGoods(){

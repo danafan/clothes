@@ -465,6 +465,7 @@
 				},{
 					label:'质检报告',
 					prop:'quality_inspection_file_url',
+					type:3
 				}
 				],						  //表头信息
 				selected_num:0,							//已选数量

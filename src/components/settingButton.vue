@@ -41,6 +41,7 @@
 				if (this.$refs.csvUpload.files.length > 0) {
 					let file = this.$refs.csvUpload.files[0];
 					this.$emit('callback',file);
+					this.$refs.csvUpload.value = null;
 				}
 			},
 		}

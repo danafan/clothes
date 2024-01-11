@@ -22,7 +22,7 @@
 						</div>
 					</div>
 					<!-- 预览按钮 -->
-					<span class="text_style" v-else-if="item.type == 3" @click="openWindow(scope.row[item.prop])">预览</span>
+					<span class="text_style" v-else-if="item.type == 3 && scope.row[item.prop]" @click="openWindow(scope.row[item.prop])">预览</span>
 					<!-- 普通文字 -->
 					<div class="table_cell table_color f14 fw500" v-else>{{scope.row[item.prop]}}</div>
 				</template>
@@ -236,6 +236,7 @@
 			},
 			//打开新窗口
 			openWindow(url){
+				console.log(url)
 				window.open(this.domain + url)
 			}
 

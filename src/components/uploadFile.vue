@@ -9,13 +9,7 @@
 			</div>
 			<img class="delete_file pointer" src="@/static/delete_file.png" @click="deleteFile" v-if="fileName">
 		</div>
-		<input type="file" ref="uploadFile" class="upload_file_input" :class="{'z9':fileName == ''}" 
-		accept="application/vnd.ms-excel, 
-		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-		application/vnd.ms-powerpoint,
-		application/vnd.openxmlformats-officedocument.presentationml.presentation,
-		application/pdf
-		" @change="uploadFile">
+		<input type="file" ref="uploadFile" class="upload_file_input" :class="{'z9':fileName == ''}" :accept="accept" @change="uploadFile" v-if="!onlyView">
 		<div class="toast default_color f12 fw400">{{toast}}</div>
 	</div>
 </template>
@@ -25,6 +19,7 @@
 		data(){
 			return{
 				upload_loading:false,					//上传中
+				accept:'application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 			}
 		},
 		props:{
@@ -32,6 +27,11 @@
 			fileName:{
 				type:String,
 			default:''
+			},
+			//是否只读
+			onlyView:{
+				type:Boolean,
+			default:false
 			},
 			//底部提示
 			toast:{
@@ -43,6 +43,29 @@
 				type:Boolean,
 			default:true
 			},
+			//上传文件类型
+			fileType:{
+				type:String,
+			default:'all'
+			}
+		},
+		watch:{
+			//监听文件类型变化
+			fileType:function(n,o){
+				switch(n){
+				case 'pdf':
+					this.accept = 'application/pdf';
+					break;
+				case 'excel':
+					this.accept = 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+					break;
+				case 'all':
+					this.accept = 'application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+					break;
+				default:
+					return;
+				}
+			}
 		},
 		computed:{
 			//文件前缀
@@ -55,7 +78,7 @@
 			uploadFile(){
 				if (this.$refs.uploadFile.files.length > 0) {
 					let files = this.$refs.uploadFile.files;
-					let type = files[0].type == 'application/vnd.ms-excel' || files[0].type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'?2:3
+					let type = this.fileType == 'excel'?2:3;
 					let arg = {
 						file:files[0],
 						type:type
